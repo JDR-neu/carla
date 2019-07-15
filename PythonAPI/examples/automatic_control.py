@@ -85,6 +85,10 @@ except IndexError:
 
 import carla
 from carla import ColorConverter as cc
+
+sys.path.append("/home/goujs/carla/PythonAPI/examples")
+sys.path.append("/home/goujs/carla/PythonAPI/carla")
+
 from agents.navigation.roaming_agent import RoamingAgent
 from agents.navigation.basic_agent import BasicAgent
 
@@ -132,7 +136,7 @@ class World(object):
         cam_index = self.camera_manager.index if self.camera_manager is not None else 0
         cam_pos_index = self.camera_manager.transform_index if self.camera_manager is not None else 0
         # Get a random blueprint.
-        blueprint = random.choice(self.world.get_blueprint_library().filter(self._actor_filter))
+        blueprint = random.choice(self.world.get_blueprint_library().filter('vehicle.*')) #self._actor_filter))
         blueprint.set_attribute('role_name', 'hero')
         if blueprint.has_attribute('color'):
             color = random.choice(blueprint.get_attribute('color').recommended_values)
@@ -298,7 +302,7 @@ class KeyboardControl(object):
                 world.player.apply_control(self._control)
 
     def _parse_vehicle_keys(self, keys, milliseconds):
-        self._control.throttle = 1.0 if keys[K_UP] or keys[K_w] else 0.0
+        self._control.throttle = 0.5 # if keys[K_UP] or keys[K_w] else 0.0
         steer_increment = 5e-4 * milliseconds
         if keys[K_LEFT] or keys[K_a]:
             self._steer_cache -= steer_increment
@@ -367,6 +371,8 @@ class HUD(object):
         t = world.player.get_transform()
         v = world.player.get_velocity()
         c = world.player.get_control()
+        acce = world.player.get_acceleration()
+
         heading = 'N' if abs(t.rotation.yaw) < 89.5 else ''
         heading += 'S' if abs(t.rotation.yaw) > 90.5 else ''
         heading += 'E' if 179.5 > t.rotation.yaw > 0.5 else ''
@@ -376,6 +382,20 @@ class HUD(object):
         max_col = max(1.0, max(collision))
         collision = [x / max_col for x in collision]
         vehicles = world.world.get_actors().filter('vehicle.*')
+        # self._info_text = [
+        #     'Server:  % 16.0f FPS' % self.server_fps,
+        #     'Client:  % 16.0f FPS' % clock.get_fps(),
+        #     '',
+        #     'Vehicle: % 20s' % get_actor_display_name(world.player, truncate=20),
+        #     'Map:     % 20s' % world.map.name,
+        #     'Simulation time: % 12s' % datetime.timedelta(seconds=int(self.simulation_time)),
+        #     '',
+        #     'Speed:   % 15.0f km/h' % (3.6 * math.sqrt(v.x ** 2 + v.y ** 2 + v.z ** 2)),
+        #     u'Heading:% 16.0f\N{DEGREE SIGN} % 2s' % (t.rotation.yaw, heading),
+        #     'Location:% 20s' % ('(% 5.1f, % 5.1f)' % (t.location.x, t.location.y)),
+        #     'GNSS:% 24s' % ('(% 2.6f, % 3.6f)' % (world.gnss_sensor.lat, world.gnss_sensor.lon)),
+        #     'Height:  % 18.0f m' % t.location.z,
+        #     '']
         self._info_text = [
             'Server:  % 16.0f FPS' % self.server_fps,
             'Client:  % 16.0f FPS' % clock.get_fps(),
@@ -384,8 +404,23 @@ class HUD(object):
             'Map:     % 20s' % world.map.name,
             'Simulation time: % 12s' % datetime.timedelta(seconds=int(self.simulation_time)),
             '',
-            'Speed:   % 15.0f km/h' % (3.6 * math.sqrt(v.x ** 2 + v.y ** 2 + v.z ** 2)),
-            u'Heading:% 16.0f\N{DEGREE SIGN} % 2s' % (t.rotation.yaw, heading),
+            'Speed:   % 6.2f km/h' % (3.6 * math.sqrt(v.x ** 2 + v.y ** 2 + v.z ** 2)),
+            'Speed-x: % 6.2f km/h' % (3.6 * v.x),
+            'Speed-y: % 6.2f km/h' % (3.6 * v.y),
+            'Speed-z: % 6.2f km/h' % (3.6 * v.z),
+            '',
+            'Acceleration:   % 6.2f m/s2' % (math.sqrt(acce.x ** 2 + acce.y ** 2 + acce.z ** 2)),
+            'Acceleration-x: %6.2f m/s2' % (acce.x),
+            'Acceleration-y: %6.2f m/s2' % (acce.y),
+            'Acceleration-z: %6.2f m/s2' % (acce.z),
+            '',
+
+            'Throttle:% 6.2f' % (c.throttle),
+            'Steer:   % 6.2f' % (c.steer),
+            'Brake:   % 6.2f' % (c.brake),
+            '',
+
+            u'Heading:% 6.2f\N{DEGREE SIGN} % 2s' % (t.rotation.yaw, heading),
             'Location:% 20s' % ('(% 5.1f, % 5.1f)' % (t.location.x, t.location.y)),
             'GNSS:% 24s' % ('(% 2.6f, % 3.6f)' % (world.gnss_sensor.lat, world.gnss_sensor.lon)),
             'Height:  % 18.0f m' % t.location.z,

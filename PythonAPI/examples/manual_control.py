@@ -70,6 +70,7 @@ except IndexError:
 import carla
 
 from carla import ColorConverter as cc
+from carla import Vector3D, Rotation, Transform
 
 import argparse
 import collections
@@ -326,14 +327,25 @@ class KeyboardControl(object):
                         world.hud.notification('Autopilot %s' % ('On' if self._autopilot_enabled else 'Off'))
         if not self._autopilot_enabled:
             if isinstance(self._control, carla.VehicleControl):
-                self._parse_vehicle_keys(pygame.key.get_pressed(), clock.get_time())
+                self._parse_vehicle_keys(world, pygame.key.get_pressed(), clock.get_time())
                 self._control.reverse = self._control.gear < 0
             elif isinstance(self._control, carla.WalkerControl):
                 self._parse_walker_keys(pygame.key.get_pressed(), clock.get_time())
             world.player.apply_control(self._control)
 
-    def _parse_vehicle_keys(self, keys, milliseconds):
-        self._control.throttle = 1.0 if keys[K_UP] or keys[K_w] else 0.0
+    def _parse_vehicle_keys(self, world, keys, milliseconds):
+        # self._control.throttle = 1.0 if keys[K_UP] or keys[K_w] else 0.0
+        # self._control.throttle = 0.6
+        if keys[K_UP] or keys[K_w]:
+            self._control.brake = 0
+            self._control.throttle += 0.001
+            if(self._control.throttle > 1):
+                self._control.throttle = 1
+        #     dv = 0.1
+        #     world.player.set_velocity(world.player.get_velocity() +
+        #                               Vector3D(dv * np.cos(world.player.get_transform().rotation.yaw /180.0 * np.pi),
+        #                                        dv * np.sin(world.player.get_transform().rotation.yaw /180.0 * np.pi), 0))
+        #     world.player.get_control()
         steer_increment = 5e-4 * milliseconds
         if keys[K_LEFT] or keys[K_a]:
             self._steer_cache -= steer_increment
@@ -344,6 +356,15 @@ class KeyboardControl(object):
         self._steer_cache = min(0.7, max(-0.7, self._steer_cache))
         self._control.steer = round(self._steer_cache, 1)
         self._control.brake = 1.0 if keys[K_DOWN] or keys[K_s] else 0.0
+        # if keys[K_DOWN] or keys[K_s]:
+        # #     self._control.brake = 1.0
+        # #     self._control.throttle = 0
+        #     self._control.brake += 0.02
+        #     if (self._control.brake > 0.6):
+        #         self._control.brake = 0.6
+        #     self._control.throttle -= 0.02
+        #     if (self._control.throttle < 0):
+        #         self._control.throttle = 0
         self._control.hand_brake = keys[K_SPACE]
 
     def _parse_walker_keys(self, keys, milliseconds):
@@ -403,6 +424,7 @@ class HUD(object):
         t = world.player.get_transform()
         v = world.player.get_velocity()
         c = world.player.get_control()
+        acce = world.player.get_acceleration()
         heading = 'N' if abs(t.rotation.yaw) < 89.5 else ''
         heading += 'S' if abs(t.rotation.yaw) > 90.5 else ''
         heading += 'E' if 179.5 > t.rotation.yaw > 0.5 else ''
@@ -420,8 +442,23 @@ class HUD(object):
             'Map:     % 20s' % world.map.name,
             'Simulation time: % 12s' % datetime.timedelta(seconds=int(self.simulation_time)),
             '',
-            'Speed:   % 15.0f km/h' % (3.6 * math.sqrt(v.x**2 + v.y**2 + v.z**2)),
-            u'Heading:% 16.0f\N{DEGREE SIGN} % 2s' % (t.rotation.yaw, heading),
+            'Speed:   % 6.2f km/h' % (3.6 * math.sqrt(v.x**2 + v.y**2 + v.z**2)),
+            'Speed-x: % 6.2f km/h' % (3.6 * v.x),
+            'Speed-y: % 6.2f km/h' % (3.6 * v.y),
+            'Speed-z: % 6.2f km/h' % (3.6 * v.z),
+            '',
+            'Acceleration:   % 6.2f m/s2' % (math.sqrt(acce.x ** 2 + acce.y ** 2 + acce.z ** 2)),
+            'Acceleration-x: %6.2f m/s2' % (acce.x),
+            'Acceleration-y: %6.2f m/s2' % (acce.y),
+            'Acceleration-z: %6.2f m/s2' % (acce.z),
+            '',
+
+            'Throttle:% 6.2f'      % (c.throttle),
+            'Steer:   % 6.2f'      % (c.steer),
+            'Brake:   % 6.2f'      % (c.brake),
+            '',
+
+            u'Heading:% 6.2f\N{DEGREE SIGN} % 2s' % (t.rotation.yaw, heading),
             'Location:% 20s' % ('(% 5.1f, % 5.1f)' % (t.location.x, t.location.y)),
             'GNSS:% 24s' % ('(% 2.6f, % 3.6f)' % (world.gnss_sensor.lat, world.gnss_sensor.lon)),
             'Height:  % 18.0f m' % t.location.z,
