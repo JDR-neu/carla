@@ -92,6 +92,8 @@ sys.path.append("/home/goujs/carla/PythonAPI/carla")
 from agents.navigation.roaming_agent import RoamingAgent
 from agents.navigation.basic_agent import BasicAgent
 
+from carla import Vector3D, Rotation, Location, Transform
+
 
 # ==============================================================================
 # -- Global functions ----------------------------------------------------------
@@ -142,16 +144,31 @@ class World(object):
             color = random.choice(blueprint.get_attribute('color').recommended_values)
             blueprint.set_attribute('color', color)
         # Spawn the player.
+        spawn_point = Transform()
+        spawn_point.location.x = 8.90147
+        spawn_point.location.y = 96.35236
+        spawn_point.location.z = 1.20
+        spawn_point.rotation.pitch = 0
+        spawn_point.rotation.roll = 0
+        spawn_point.rotation.yaw = 90
         if self.player is not None:
-            spawn_point = self.player.get_transform()
-            spawn_point.location.z += 2.0
-            spawn_point.rotation.roll = 0.0
-            spawn_point.rotation.pitch = 0.0
+            # spawn_point = self.player.get_transform()
+            # spawn_point.location.z += 2.0
+            # spawn_point.rotation.roll = 0.0
+            # spawn_point.rotation.pitch = 0.0
+            info = "1 -- spawn_point.location = (%.3f, %.3f, %.3f), spawn_point.rotation = (%.3f, %.3f)" % \
+                   (spawn_point.location.x, spawn_point.location.y, spawn_point.location.z, spawn_point.rotation.roll, spawn_point.rotation.pitch)
+            print(info)
+
             self.destroy()
             self.player = self.world.try_spawn_actor(blueprint, spawn_point)
         while self.player is None:
-            spawn_points = self.map.get_spawn_points()
-            spawn_point = random.choice(spawn_points) if spawn_points else carla.Transform()
+            # spawn_points = self.map.get_spawn_points()
+            # spawn_point = random.choice(spawn_points) if spawn_points else carla.Transform()
+            info = "2 -- spawn_point.location = (%.3f, %.3f, %.3f), spawn_point.rotation = (%.3f, %.3f)" % \
+                   (spawn_point.location.x, spawn_point.location.y, spawn_point.location.z, spawn_point.rotation.roll,
+                    spawn_point.rotation.pitch)
+            print(info)
             self.player = self.world.try_spawn_actor(blueprint, spawn_point)
         # Set up the sensors.
         self.collision_sensor = CollisionSensor(self.player, self.hud)
