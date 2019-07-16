@@ -145,12 +145,30 @@ class World(object):
             blueprint.set_attribute('color', color)
         # Spawn the player.
         spawn_point = Transform()
-        spawn_point.location.x = 8.90147
-        spawn_point.location.y = 96.35236
+        # go straight
+        # spawn_point.location.x = 8.90147
+        # spawn_point.location.y = 96.35236
+        # spawn_point.location.z = 1.20
+        # spawn_point.rotation.pitch = 0
+        # spawn_point.rotation.roll = 0
+        # spawn_point.rotation.yaw = 90
+
+        # cross lanes
+        # spawn_point.location.x = 223.0252
+        # spawn_point.location.y = -385.143
+        # spawn_point.location.z = 1.20
+        # spawn_point.rotation.pitch = 0
+        # spawn_point.rotation.roll = 0
+        # spawn_point.rotation.yaw = 170
+
+        # turn
+        spawn_point.location.x = 304.1088
+        spawn_point.location.y = -121.583
         spawn_point.location.z = 1.20
         spawn_point.rotation.pitch = 0
         spawn_point.rotation.roll = 0
-        spawn_point.rotation.yaw = 90
+        spawn_point.rotation.yaw = 0
+
         if self.player is not None:
             # spawn_point = self.player.get_transform()
             # spawn_point.location.z += 2.0
@@ -217,10 +235,15 @@ class World(object):
 
 class KeyboardControl(object):
     def __init__(self, world, start_in_autopilot):
-        self._autopilot_enabled = start_in_autopilot
+        # self._autopilot_enabled = start_in_autopilot
+        self._autopilot_enabled = True
+        print("*********** start auto pilot **********")
         if isinstance(world.player, carla.Vehicle):
             self._control = carla.VehicleControl()
-            world.player.set_autopilot(self._autopilot_enabled)
+            # world.player.set_autopilot(self._autopilot_enabled)
+            world.player.set_autopilot(True)
+
+            print("*********** start auto pilot **********")
         elif isinstance(world.player, carla.Walker):
             self._control = carla.WalkerControl()
             self._autopilot_enabled = False

@@ -21,6 +21,8 @@
 
 static bool RayCast(const AActor &Actor, const FVector &Start, const FVector &End)
 {
+  // UE_LOG(LogCarla, Warning, TEXT("********* RayCast() **********"));
+
   FHitResult OutHit;
   static FName TraceTag = FName(TEXT("VehicleTrace"));
   FCollisionQueryParams CollisionParams(TraceTag, true);
@@ -44,6 +46,8 @@ static bool IsThereAnObstacleAhead(
     const float Speed,
     const FVector &Direction)
 {
+  // UE_LOG(LogCarla, Warning, TEXT("********* IsThereAnObstacleAhead() **********"));
+
   const auto ForwardVector = Vehicle.GetVehicleOrientation();
   const auto VehicleBounds = Vehicle.GetVehicleBoundingBoxExtent();
 
@@ -72,6 +76,8 @@ static bool IsThereAnObstacleAhead(
 template <typename T>
 static void ClearQueue(std::queue<T> &Queue)
 {
+  UE_LOG(LogCarla, Warning, TEXT("********* ClearQueue() **********"));
+
   std::queue<T> EmptyQueue;
   Queue.swap(EmptyQueue);
 }
@@ -83,12 +89,18 @@ static void ClearQueue(std::queue<T> &Queue)
 AWheeledVehicleAIController::AWheeledVehicleAIController(const FObjectInitializer &ObjectInitializer)
   : Super(ObjectInitializer)
 {
+  UE_LOG(LogCarla, Warning, TEXT("********* AWheeledVehicleAIController() **********"));
+
   RandomEngine = CreateDefaultSubobject<URandomEngine>(TEXT("RandomEngine"));
 
   RandomEngine->Seed(RandomEngine->GenerateRandomSeed());
 
   PrimaryActorTick.bCanEverTick = true;
   PrimaryActorTick.TickGroup = TG_PrePhysics;
+
+  UE_LOG(LogCarla, Warning, TEXT("------------ set fixed route in constructor -----------"));
+  TArray<FVector> Locations;
+  SetFixedRoute(Locations);
 }
 
 AWheeledVehicleAIController::~AWheeledVehicleAIController() {}
@@ -99,6 +111,8 @@ AWheeledVehicleAIController::~AWheeledVehicleAIController() {}
 
 void AWheeledVehicleAIController::OnPossess(APawn *aPawn)
 {
+  UE_LOG(LogCarla, Warning, TEXT("********* OnPossess() **********"));
+
   Super::OnPossess(aPawn);
 
   if (IsPossessingAVehicle())
@@ -121,6 +135,8 @@ void AWheeledVehicleAIController::OnPossess(APawn *aPawn)
 
 void AWheeledVehicleAIController::OnUnPossess()
 {
+  UE_LOG(LogCarla, Warning, TEXT("********* OnUnPossess() **********"));
+
   Super::OnUnPossess();
 
   Vehicle = nullptr;
@@ -128,6 +144,8 @@ void AWheeledVehicleAIController::OnUnPossess()
 
 void AWheeledVehicleAIController::Tick(const float DeltaTime)
 {
+  UE_LOG(LogCarla, Warning, TEXT("********* Tick() **********"));
+
   Super::Tick(DeltaTime);
 
   if (!IsPossessingAVehicle())
@@ -153,6 +171,8 @@ void AWheeledVehicleAIController::Tick(const float DeltaTime)
 
 void AWheeledVehicleAIController::ConfigureAutopilot(const bool Enable, const bool KeepState)
 {
+  UE_LOG(LogCarla, Warning, TEXT("********* ConfigureAutopilot() **********"));
+
   bAutopilotEnabled = Enable;
   if (!KeepState)
   {
@@ -162,7 +182,7 @@ void AWheeledVehicleAIController::ConfigureAutopilot(const bool Enable, const bo
     Vehicle->SetBrakeInput(0.0f);
     Vehicle->SetReverse(false);
     Vehicle->SetHandbrakeInput(false);
-    ClearQueue(TargetLocations);
+    // ClearQueue(TargetLocations);
     Vehicle->SetAIVehicleState(
         bAutopilotEnabled ?
         ECarlaWheeledVehicleState::FreeDriving :
@@ -203,14 +223,37 @@ void AWheeledVehicleAIController::SetFixedRoute(
     const TArray<FVector> &Locations,
     const bool bOverwriteCurrent)
 {
-  if (bOverwriteCurrent)
-  {
-    ClearQueue(TargetLocations);
+  UE_LOG(LogCarla, Warning, TEXT("********* SetFixedRoute() **********"));
+  // if (bOverwriteCurrent)
+  // {
+  //   ClearQueue(TargetLocations);
+  // }
+  // for (auto &Location : Locations)
+  // {
+  //   TargetLocations.emplace(Location);
+  // }
+  if(!TargetLocations.empty()) {
+    UE_LOG(LogCarla, Error, TEXT("*********  can't SetFixedRoute() because TargetLocations is not empty **********"));
+    return;
   }
-  for (auto &Location : Locations)
-  {
-    TargetLocations.emplace(Location);
-  }
+  // 直行
+  // FVector loc(906.55, 12885.20, 120);
+  // TargetLocations.emplace(loc);
+  // loc = FVector(918.56, 15265.16, 120);
+  // TargetLocations.emplace(loc);
+  // loc = FVector(934.70, 18465.13, 120);
+  // TargetLocations.emplace(loc);
+  // loc = FVector(948.83, 21265.09, 120);
+  // TargetLocations.emplace(loc);
+  // 跨越车道
+  // FVector loc(20096.1, -39580.89, 120);
+  // TargetLocations.emplace(loc);
+  // 转弯
+  FVector loc(31048.72, -11297.29, 120);
+  TargetLocations.emplace(loc);
+  UE_LOG(LogCarla, Warning, TEXT("********* SetFixedRoute() Done!!! **********"));
+  UE_LOG(LogCarla, Warning, TEXT("999, TargetLocations.size() = %d"), TargetLocations.size());
+
 }
 
 // =============================================================================
@@ -219,6 +262,8 @@ void AWheeledVehicleAIController::SetFixedRoute(
 
 FVehicleControl AWheeledVehicleAIController::TickAutopilotController()
 {
+  UE_LOG(LogCarla, Warning, TEXT("********* TickAutopilotController() **********"));
+
 #if WITH_EDITOR // This happens in simulation mode in editor.
   if (Vehicle == nullptr)
   {
@@ -228,16 +273,34 @@ FVehicleControl AWheeledVehicleAIController::TickAutopilotController()
 #endif // WITH_EDITOR
 
   check(Vehicle != nullptr);
+  UE_LOG(LogCarla, Warning, TEXT("33333"));
+  FVehicleControl AutopilotControl;
+  UE_LOG(LogCarla, Warning, TEXT("8888, TargetLocations.size() = %d"), TargetLocations.size());
+
+  if (TargetLocations.empty())
+  {
+    UE_LOG(LogCarla, Warning, TEXT("********* path empty, path done **********"));
+    AutopilotControl.Brake = 0.0f;
+    AutopilotControl.Throttle = 0.0f;
+    AutopilotControl.Steer = 0.0f;
+    UE_LOG(LogCarla, Warning, TEXT("********* car should stop **********"));
+    return AutopilotControl;
+  }
+
+  UE_LOG(LogCarla, Warning, TEXT("********* path not empty **********"));
 
   FVector Direction;
 
   float Steering;
+  UE_LOG(LogCarla, Warning, TEXT("777, TargetLocations.size() = %d"), TargetLocations.size());
   if (!TargetLocations.empty())
   {
+    UE_LOG(LogCarla, Warning, TEXT("11111, TargetLocations not empty"));
     Steering = GoToNextTargetLocation(Direction);
   }
   else
   {
+    UE_LOG(LogCarla, Warning, TEXT("22222, TargetLocations is empty!!"));
     Steering = RoadMap != nullptr ? CalcStreeringValue(Direction) : 0.0f;
     Direction = Vehicle->GetVehicleTransform().GetRotation().Rotator().Vector();
   }
@@ -261,7 +324,7 @@ FVehicleControl AWheeledVehicleAIController::TickAutopilotController()
     Throttle = Move(Speed);
   }
 
-  FVehicleControl AutopilotControl;
+
 
   if (Throttle < 0.001f)
   {
@@ -280,6 +343,8 @@ FVehicleControl AWheeledVehicleAIController::TickAutopilotController()
 
 float AWheeledVehicleAIController::GoToNextTargetLocation(FVector &Direction)
 {
+  UE_LOG(LogCarla, Warning, TEXT("********* GoToNextTargetLocation() **********"));
+
   // Get middle point between the two front wheels.
   const auto CurrentLocation = [&]() {
     const auto &Wheels = Vehicle->GetVehicleMovementComponent()->Wheels;
@@ -289,18 +354,29 @@ float AWheeledVehicleAIController::GoToNextTargetLocation(FVector &Direction)
 
   const auto Target = [&]() {
     const auto &Result = TargetLocations.front();
+
     return FVector{Result.X, Result.Y, CurrentLocation.Z};
   } ();
+
+  UE_LOG(LogCarla, Warning, TEXT("------current location = (%f, %f, %f)"), CurrentLocation.X, CurrentLocation.Y, CurrentLocation.Z);
+  UE_LOG(LogCarla, Warning, TEXT("------target location = (%f, %f, %f)"), Target.X, Target.Y, Target.Z);
+  UE_LOG(LogCarla, Warning, TEXT("555, TargetLocations.size() = %d"), TargetLocations.size());
 
   if (Target.Equals(CurrentLocation, 200.0f))
   {
     TargetLocations.pop();
+    UE_LOG(LogCarla, Warning, TEXT("666, TargetLocations.size() = %d"), TargetLocations.size());
+
     if (!TargetLocations.empty())
     {
+      UE_LOG(LogCarla, Warning, TEXT("333, TargetLocations.size() = %d"), TargetLocations.size());
+
       return GoToNextTargetLocation(Direction);
     }
     else
     {
+      UE_LOG(LogCarla, Warning, TEXT("444, TargetLocations.size() = %d"), TargetLocations.size());
+
       return RoadMap != nullptr ? CalcStreeringValue(Direction) : 0.0f;
     }
   }
@@ -346,6 +422,8 @@ float AWheeledVehicleAIController::GoToNextTargetLocation(FVector &Direction)
 
 float AWheeledVehicleAIController::CalcStreeringValue(FVector &direction)
 {
+  UE_LOG(LogCarla, Warning, TEXT("********* CalcStreeringValue() **********"));
+
   float steering = 0;
   FVector BoxExtent = Vehicle->GetVehicleBoundingBoxExtent();
   FVector forward = Vehicle->GetActorForwardVector();
@@ -483,11 +561,15 @@ float AWheeledVehicleAIController::CalcStreeringValue(FVector &direction)
 
 float AWheeledVehicleAIController::Stop(const float Speed)
 {
+  UE_LOG(LogCarla, Warning, TEXT("********* Stop() **********"));
+
   return (Speed >= 1.0f ? -Speed / SpeedLimit : 0.0f);
 }
 
 float AWheeledVehicleAIController::Move(const float Speed)
 {
+  UE_LOG(LogCarla, Warning, TEXT("********* Move() **********"));
+
   if (Speed >= SpeedLimit)
   {
     return Stop(Speed);
