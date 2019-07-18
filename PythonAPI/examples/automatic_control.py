@@ -138,7 +138,8 @@ class World(object):
         cam_index = self.camera_manager.index if self.camera_manager is not None else 0
         cam_pos_index = self.camera_manager.transform_index if self.camera_manager is not None else 0
         # Get a random blueprint.
-        blueprint = random.choice(self.world.get_blueprint_library().filter('vehicle.*')) #self._actor_filter))
+        # blueprint = random.choice(self.world.get_blueprint_library().filter('vehicle.*')) #self._actor_filter))
+        blueprint = random.choice(self.world.get_blueprint_library().filter('vehicle.tesla.model3'))
         blueprint.set_attribute('role_name', 'hero')
         if blueprint.has_attribute('color'):
             color = random.choice(blueprint.get_attribute('color').recommended_values)
@@ -154,20 +155,20 @@ class World(object):
         # spawn_point.rotation.yaw = 90
 
         # cross lanes
-        # spawn_point.location.x = 223.0252
-        # spawn_point.location.y = -385.143
-        # spawn_point.location.z = 1.20
-        # spawn_point.rotation.pitch = 0
-        # spawn_point.rotation.roll = 0
-        # spawn_point.rotation.yaw = 170
-
-        # turn
-        spawn_point.location.x = 304.1088
-        spawn_point.location.y = -121.583
+        spawn_point.location.x = 223.0252
+        spawn_point.location.y = -385.143
         spawn_point.location.z = 1.20
         spawn_point.rotation.pitch = 0
         spawn_point.rotation.roll = 0
-        spawn_point.rotation.yaw = 0
+        spawn_point.rotation.yaw = 170
+
+        # turn
+        # spawn_point.location.x = 304.1088
+        # spawn_point.location.y = -121.583
+        # spawn_point.location.z = 1.20
+        # spawn_point.rotation.pitch = 0
+        # spawn_point.rotation.roll = 0
+        # spawn_point.rotation.yaw = 0
 
         if self.player is not None:
             # spawn_point = self.player.get_transform()

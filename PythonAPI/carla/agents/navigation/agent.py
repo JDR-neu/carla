@@ -12,6 +12,16 @@ The agent also responds to traffic lights. """
 
 from enum import Enum
 
+import sys
+sys.path.append("/home/goujs/carla/PythonAPI/examples")
+sys.path.append("/home/goujs/carla/PythonAPI/carla")
+import glob
+import os
+sys.path.append(glob.glob('/home/goujs/carla/PythonAPI/carla/dist/carla-*%d.%d-%s.egg' % (
+        sys.version_info.major,
+        sys.version_info.minor,
+        'win-amd64' if os.name == 'nt' else 'linux-x86_64'))[0])
+
 import carla
 from agents.tools.misc import is_within_distance_ahead, compute_magnitude_angle
 

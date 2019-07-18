@@ -335,12 +335,12 @@ class KeyboardControl(object):
 
     def _parse_vehicle_keys(self, world, keys, milliseconds):
         # self._control.throttle = 1.0 if keys[K_UP] or keys[K_w] else 0.0
-        # self._control.throttle = 0.6
-        if keys[K_UP] or keys[K_w]:
-            self._control.brake = 0
-            self._control.throttle += 0.001
-            if(self._control.throttle > 1):
-                self._control.throttle = 1
+        self._control.throttle = 0.6
+        # if keys[K_UP] or keys[K_w]:
+        #     self._control.brake = 0
+        #     self._control.throttle += 0.001
+        #     if(self._control.throttle > 1):
+        #         self._control.throttle = 1
         #     dv = 0.1
         #     world.player.set_velocity(world.player.get_velocity() +
         #                               Vector3D(dv * np.cos(world.player.get_transform().rotation.yaw /180.0 * np.pi),
