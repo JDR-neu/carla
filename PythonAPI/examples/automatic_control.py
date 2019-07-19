@@ -23,6 +23,7 @@ import random
 import re
 import sys
 import weakref
+import time
 
 try:
     import pygame
@@ -175,8 +176,9 @@ class World(object):
             # spawn_point.location.z += 2.0
             # spawn_point.rotation.roll = 0.0
             # spawn_point.rotation.pitch = 0.0
-            info = "1 -- spawn_point.location = (%.3f, %.3f, %.3f), spawn_point.rotation = (%.3f, %.3f)" % \
-                   (spawn_point.location.x, spawn_point.location.y, spawn_point.location.z, spawn_point.rotation.roll, spawn_point.rotation.pitch)
+            info = "1 -- spawn_point.location = (%.3f, %.3f, %.3f), spawn_point.rotation = (%.3f, %.3f, %.3f)" % \
+                   (spawn_point.location.x, spawn_point.location.y, spawn_point.location.z,
+                    spawn_point.rotation.roll, spawn_point.rotation.pitch, spawn_point.rotation.yaw)
             print(info)
 
             self.destroy()
@@ -184,9 +186,9 @@ class World(object):
         while self.player is None:
             # spawn_points = self.map.get_spawn_points()
             # spawn_point = random.choice(spawn_points) if spawn_points else carla.Transform()
-            info = "2 -- spawn_point.location = (%.3f, %.3f, %.3f), spawn_point.rotation = (%.3f, %.3f)" % \
-                   (spawn_point.location.x, spawn_point.location.y, spawn_point.location.z, spawn_point.rotation.roll,
-                    spawn_point.rotation.pitch)
+            info = "2 -- spawn_point.location = (%.3f, %.3f, %.3f), spawn_point.rotation = (%.3f, %.3f, %.3f)" % \
+                   (spawn_point.location.x, spawn_point.location.y, spawn_point.location.z,
+                    spawn_point.rotation.roll, spawn_point.rotation.pitch, spawn_point.rotation.yaw)
             print(info)
             self.player = self.world.try_spawn_actor(blueprint, spawn_point)
         # Set up the sensors.
@@ -243,14 +245,42 @@ class KeyboardControl(object):
             self._control = carla.VehicleControl()
             # world.player.set_autopilot(self._autopilot_enabled)
             world.player.set_autopilot(True)
-            world.player.set_speedlimit(23.5)
-            world.player.set_fixed_route_one_point(906.55, 12885.20, 120)
-            world.player.set_fixed_route_one_point(918.56, 15265.16, 120)
-            world.player.set_fixed_route_one_point(934.70, 18465.13, 120)
-            world.player.set_fixed_route_one_point(948.83, 21265.09, 120)
-            world.player.set_speedlimit(23.5)
+            # world.player.set_speedlimit(23.5)
+            # sparse
+            # world.player.set_fixed_route_one_point(906.55, 12885.20, 120)
+            # world.player.set_fixed_route_one_point(918.56, 15265.16, 120)
+            # world.player.set_fixed_route_one_point(934.70, 18465.13, 120)
+            # world.player.set_fixed_route_one_point(948.83, 21265.09, 120)
 
+            # interpolate 0.4
+            world.player.set_fixed_route_one_point(897.557, 11103.4, 120.0)
+            time.sleep(0.001)
+            world.player.set_fixed_route_one_point(903.835, 12347.3, 120.0)
+            time.sleep(0.001)
+            world.player.set_fixed_route_one_point(909.003, 13371.2, 120.0)
+            time.sleep(0.001)
+            world.player.set_fixed_route_one_point(913.575, 14277.2, 120.0)
+            time.sleep(0.001)
+            world.player.set_fixed_route_one_point(918.56, 15265.2, 120.0)
+            time.sleep(0.001)
+            world.player.set_fixed_route_one_point(924.675, 16477.5, 120.0)
+            time.sleep(0.001)
+            world.player.set_fixed_route_one_point(931.386, 17808.1, 120.0)
+            time.sleep(0.001)
+            world.player.set_fixed_route_one_point(937.863, 19092.1, 120.0)
+            time.sleep(0.001)
+            world.player.set_fixed_route_one_point(943.684, 20245.6, 120.0)
+            time.sleep(0.001)
+            world.player.set_fixed_route_one_point(948.83, 21265.1, 120.0)
 
+            # interpolate 0.6
+            # world.player.set_fixed_route_one_point(900.838, 11753.4, 120.0)
+            # world.player.set_fixed_route_one_point(909.003, 13371.2, 120.0)
+            # world.player.set_fixed_route_one_point(915.952, 14748.2, 120.0)
+            # world.player.set_fixed_route_one_point(924.675, 16477.5, 120.0)
+            # world.player.set_fixed_route_one_point(934.7, 18465.1, 120.0)
+            # world.player.set_fixed_route_one_point(943.684, 20245.6, 120.0)
+            # world.player.set_fixed_route_one_point(948.83, 21265.1, 120.0)
             print("*********** start auto pilot **********")
         elif isinstance(world.player, carla.Walker):
             self._control = carla.WalkerControl()

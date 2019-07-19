@@ -28,8 +28,6 @@ namespace client {
     /// Switch on/off this vehicle's autopilot.
     void SetAutopilot(bool enabled = true);
 
-    void SetSpeedLimit(float InSpeedLimit);
-
     void SetFixedRouteOnePoint(float x, float y, float z);
 
     /// Apply @a control to this vehicle.

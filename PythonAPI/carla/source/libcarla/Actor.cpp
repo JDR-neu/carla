@@ -97,7 +97,7 @@ void export_actor() {
       .def("apply_physics_control", &cc::Vehicle::ApplyPhysicsControl, (arg("physics_control")))
       .def("get_physics_control", CONST_CALL_WITHOUT_GIL(cc::Vehicle, GetPhysicsControl))
       .def("set_autopilot", &cc::Vehicle::SetAutopilot, (arg("enabled") = true))
-      .def("set_speedlimit", &cc::Vehicle::SetSpeedLimit, (arg("InSpeedLimit")))
+
       .def("set_fixed_route_one_point", &cc::Vehicle::SetFixedRouteOnePoint, (arg("x"), arg("y"), arg("z")))
       .def("get_speed_limit", &cc::Vehicle::GetSpeedLimit)
       .def("get_traffic_light_state", &cc::Vehicle::GetTrafficLightState)

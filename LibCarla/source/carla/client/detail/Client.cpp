@@ -240,10 +240,6 @@ namespace detail {
     _pimpl->AsyncCall("set_actor_autopilot", vehicle, enabled);
   }
 
-  void Client::SetActorSpeedLimit(rpc::ActorId vehicle, float InSpeedLimit) {
-    _pimpl->AsyncCall("set_actor_speedlimit", vehicle, InSpeedLimit);
-  }
-
   void Client::SetActorFixedRouteOnePoint(rpc::ActorId vehicle, float x, float y, float z) {
     _pimpl->AsyncCall("set_actor_fixed_route_one_point", vehicle, x, y, z);
   }

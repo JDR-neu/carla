@@ -32,10 +32,6 @@ namespace client {
     GetEpisode().Lock()->SetVehicleAutopilot(*this, enabled);
   }
 
-  void Vehicle::SetSpeedLimit(float InSpeedLimit) {
-    GetEpisode().Lock()->SetVehicleSpeedLimit(*this, InSpeedLimit);
-  }
-
   void Vehicle::SetFixedRouteOnePoint(float x, float y, float z) {
     GetEpisode().Lock()->SetVehicleFixedRouteOnePoint(*this, x, y, z);
   }

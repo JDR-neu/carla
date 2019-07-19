@@ -303,10 +303,6 @@ namespace detail {
       _client.SetActorAutopilot(vehicle.GetId(), enabled);
     }
 
-    void SetVehicleSpeedLimit(Vehicle &vehicle, float InSpeedLimit) {
-      _client.SetActorSpeedLimit(vehicle.GetId(), InSpeedLimit);
-    }
-
     void SetVehicleFixedRouteOnePoint(Vehicle &vehicle, float x, float y, float z) {
       _client.SetActorFixedRouteOnePoint(vehicle.GetId(), x, y, z);
     }

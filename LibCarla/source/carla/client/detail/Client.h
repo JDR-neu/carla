@@ -142,10 +142,6 @@ namespace detail {
         rpc::ActorId vehicle,
         bool enabled);
 
-    void SetActorSpeedLimit(
-        rpc::ActorId vehicle,
-        float InSpeedLimit);
-
     void SetActorFixedRouteOnePoint(
         rpc::ActorId vehicle,
         float x, float y, float z);
