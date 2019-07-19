@@ -56,7 +56,7 @@ def get_libcarla_extensions():
                 extra_compile_args += ['-DLIBCARLA_IMAGE_WITH_PNG_SUPPORT=false']
             else:
                 extra_link_args += ['-lpng', '-ljpeg', '-ltiff']
-                extra_compile_args += ['-DLIBCARLA_IMAGE_WITH_PNG_SUPPORT=true']
+                extra_compile_args += ['-DLIBCARLA_IMAGE_WITH_PNG_SUPPORT=false']
             # @todo Why would we need this?
             include_dirs += ['/usr/lib/gcc/x86_64-linux-gnu/7/include']
             library_dirs += ['/usr/lib/gcc/x86_64-linux-gnu/7']
@@ -91,7 +91,7 @@ def get_libcarla_extensions():
             '/experimental:external', '/external:I', 'dependencies/include/system',
             '/DBOOST_ALL_NO_LIB', '/DBOOST_PYTHON_STATIC_LIB',
             '/DBOOST_ERROR_CODE_HEADER_ONLY', '/D_WIN32_WINNT=0x0501',
-            '/DLIBCARLA_WITH_PYTHON_SUPPORT', '-DLIBCARLA_IMAGE_WITH_PNG_SUPPORT=true']
+            '/DLIBCARLA_WITH_PYTHON_SUPPORT', '-DLIBCARLA_IMAGE_WITH_PNG_SUPPORT=false']
     else:
         raise NotImplementedError
 

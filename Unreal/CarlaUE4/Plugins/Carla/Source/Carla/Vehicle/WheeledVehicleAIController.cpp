@@ -99,8 +99,8 @@ AWheeledVehicleAIController::AWheeledVehicleAIController(const FObjectInitialize
   PrimaryActorTick.TickGroup = TG_PrePhysics;
 
   UE_LOG(LogCarla, Warning, TEXT("------------ set fixed route in constructor -----------"));
-  TArray<FVector> Locations;
-  SetFixedRoute(Locations);
+  // TArray<FVector> Locations;
+  // SetFixedRoute(Locations);
 }
 
 AWheeledVehicleAIController::~AWheeledVehicleAIController() {}
@@ -263,15 +263,20 @@ void AWheeledVehicleAIController::SetFixedRoute(
 
 }
 
+void AWheeledVehicleAIController::SetFixedRouteOnePoint(float x, float y, float z) {
+  UE_LOG(LogCarla, Warning, TEXT("********* SetFixedRouteOnePoint() **********"));
+  TargetLocations.emplace(FVector(x, y, z));
+
+}
+
 // =============================================================================
 // -- AI -----------------------------------------------------------------------
 // =============================================================================
 
 FVehicleControl AWheeledVehicleAIController::TickAutopilotController()
 {
-  UE_LOG(LogCarla, Warning, TEXT("********* TickAutopilotController() **********"));
-  SetSpeedLimit(17.8);
-  UE_LOG(LogCarla, Warning, TEXT("********* SpeedLimit = %f **********"), SpeedLimit);
+  // SetSpeedLimit(17.8);
+  UE_LOG(LogCarla, Warning, TEXT("********* TickAutopilotController(), SpeedLimit = %f **********"), SpeedLimit);
 
 
 #if WITH_EDITOR // This happens in simulation mode in editor.

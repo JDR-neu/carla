@@ -147,20 +147,20 @@ class World(object):
         # Spawn the player.
         spawn_point = Transform()
         # go straight
-        # spawn_point.location.x = 8.90147
-        # spawn_point.location.y = 96.35236
-        # spawn_point.location.z = 1.20
-        # spawn_point.rotation.pitch = 0
-        # spawn_point.rotation.roll = 0
-        # spawn_point.rotation.yaw = 90
-
-        # cross lanes
-        spawn_point.location.x = 223.0252
-        spawn_point.location.y = -385.143
+        spawn_point.location.x = 8.90147
+        spawn_point.location.y = 96.35236
         spawn_point.location.z = 1.20
         spawn_point.rotation.pitch = 0
         spawn_point.rotation.roll = 0
-        spawn_point.rotation.yaw = 170
+        spawn_point.rotation.yaw = 90
+
+        # cross lanes
+        # spawn_point.location.x = 223.0252
+        # spawn_point.location.y = -385.143
+        # spawn_point.location.z = 1.20
+        # spawn_point.rotation.pitch = 0
+        # spawn_point.rotation.roll = 0
+        # spawn_point.rotation.yaw = 170
 
         # turn
         # spawn_point.location.x = 304.1088
@@ -243,6 +243,13 @@ class KeyboardControl(object):
             self._control = carla.VehicleControl()
             # world.player.set_autopilot(self._autopilot_enabled)
             world.player.set_autopilot(True)
+            world.player.set_speedlimit(23.5)
+            world.player.set_fixed_route_one_point(906.55, 12885.20, 120)
+            world.player.set_fixed_route_one_point(918.56, 15265.16, 120)
+            world.player.set_fixed_route_one_point(934.70, 18465.13, 120)
+            world.player.set_fixed_route_one_point(948.83, 21265.09, 120)
+            world.player.set_speedlimit(23.5)
+
 
             print("*********** start auto pilot **********")
         elif isinstance(world.player, carla.Walker):

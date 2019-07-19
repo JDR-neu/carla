@@ -15,6 +15,7 @@
 
 #include "WheeledVehicleAIController.generated.h"
 
+
 class ACarlaWheeledVehicle;
 class URandomEngine;
 class URoadMap;
@@ -173,7 +174,10 @@ public:
   UFUNCTION(Category = "Wheeled Vehicle Controller", BlueprintCallable)
   void SetSpeedLimit(float InSpeedLimit)
   {
+    UE_LOG(LogCarla, Warning, TEXT("********* before SetSpeedLimit(), SpeedLimit = %f **********"), SpeedLimit);
     SpeedLimit = InSpeedLimit;
+    UE_LOG(LogCarla, Warning, TEXT("********* after SetSpeedLimit(), SpeedLimit = %f **********"), SpeedLimit);
+
   }
 
   /// Get traffic light state currently affecting this vehicle.
@@ -207,6 +211,10 @@ public:
   /// Set a fixed route to follow if autopilot is enabled.
   UFUNCTION(Category = "Wheeled Vehicle Controller", BlueprintCallable)
   void SetFixedRoute(const TArray<FVector> &Locations, bool bOverwriteCurrent = true);
+
+  /// Set a fixed route to follow if autopilot is enabled.
+  UFUNCTION(Category = "Wheeled Vehicle Controller", BlueprintCallable)
+  void SetFixedRouteOnePoint(float x, float y, float z);
 
   /// @}
 
