@@ -704,6 +704,30 @@ void FCarlaServer::FPimpl::BindActions()
     return R<void>::Success();
   };
 
+  BIND_SYNC(set_actor_speed_limit) << [this](
+    cr::ActorId ActorId,
+    float InSpeedLimit, bool outside) -> R<void>
+  {
+    REQUIRE_CARLA_EPISODE();
+    auto ActorView = Episode->FindActor(ActorId);
+    if (!ActorView.IsValid())
+    {
+      RESPOND_ERROR("unable to set speed limit: actor not found");
+    }
+    auto Vehicle = Cast<ACarlaWheeledVehicle>(ActorView.GetActor());
+    if (Vehicle == nullptr)
+    {
+      RESPOND_ERROR("unable to set speed limit: vehicle is nullptr");
+    }
+    auto Controller = Cast<AWheeledVehicleAIController>(Vehicle->GetController());
+    if (Controller == nullptr)
+    {
+      RESPOND_ERROR("unable to set speed limit: vehicle controller is nullptr");
+    }
+    Controller->SetSpeedLimit(InSpeedLimit, outside);
+    return R<void>::Success();
+  };
+
   // ~~ Traffic lights ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
   BIND_SYNC(set_traffic_light_state) << [this](

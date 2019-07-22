@@ -311,6 +311,10 @@ namespace detail {
       _client.ClearActorFixedRoute(vehicle.GetId());
     }
 
+    void SetVehicleSpeedLimit(Vehicle &vehicle, float InSpeedLimit, bool outside = false) {
+      _client.SetActorSpeedLimit(vehicle.GetId(), InSpeedLimit, outside);
+    }
+
     void ApplyControlToVehicle(Vehicle &vehicle, const rpc::VehicleControl &control) {
       _client.ApplyControlToVehicle(vehicle.GetId(), control);
     }

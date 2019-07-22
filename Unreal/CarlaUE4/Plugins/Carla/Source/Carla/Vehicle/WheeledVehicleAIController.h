@@ -172,12 +172,16 @@ public:
 
   /// Set vehicle's speed limit in km/h.
   UFUNCTION(Category = "Wheeled Vehicle Controller", BlueprintCallable)
-  void SetSpeedLimit(float InSpeedLimit)
+  void SetSpeedLimit(float InSpeedLimit, bool outside = false)
   {
     UE_LOG(LogCarla, Warning, TEXT("********* before SetSpeedLimit(), SpeedLimit = %f **********"), SpeedLimit);
-    SpeedLimit = InSpeedLimit;
+    if(outside) {
+      UE_LOG(LogCarla, Warning, TEXT("********* SetSpeedLimit() from outside, InSpeedLimit = %f **********"), InSpeedLimit);
+      SpeedLimit = InSpeedLimit;
+    } else {
+      UE_LOG(LogCarla, Warning, TEXT("********* SetSpeedLimit() from inside, InSpeedLimit = %f **********"), InSpeedLimit);
+    }
     UE_LOG(LogCarla, Warning, TEXT("********* after SetSpeedLimit(), SpeedLimit = %f **********"), SpeedLimit);
-
   }
 
   /// Get traffic light state currently affecting this vehicle.

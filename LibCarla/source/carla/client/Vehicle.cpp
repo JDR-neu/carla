@@ -40,6 +40,10 @@ namespace client {
     GetEpisode().Lock()->ClearVehicleFixedRoute(*this);
   }
 
+  void Vehicle::SetSpeedLimit(float InSpeedLimit, bool outside) {
+    GetEpisode().Lock()->SetVehicleSpeedLimit(*this, InSpeedLimit, outside);
+  }
+
   void Vehicle::ApplyControl(const Control &control) {
     if (!_is_control_sticky || (control != _control)) {
       GetEpisode().Lock()->ApplyControlToVehicle(*this, control);

@@ -604,7 +604,8 @@ float AWheeledVehicleAIController::Move(const float Speed)
   {
     return Stop(Speed);
   }
-  else if (Speed >= SpeedLimit - 10.0f)
+  // else if (Speed >= SpeedLimit - 10.0f)
+  else if (Speed >= SpeedLimit * 0.95f)
   {
     return 0.5f;
   }

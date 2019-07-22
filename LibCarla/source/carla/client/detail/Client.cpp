@@ -248,6 +248,10 @@ namespace detail {
     _pimpl->AsyncCall("clear_actor_fixed_route", vehicle);
   }
 
+  void Client::SetActorSpeedLimit(rpc::ActorId vehicle, float InSpeedLimit, bool outside) {
+    _pimpl->AsyncCall("set_actor_speed_limit", vehicle, InSpeedLimit, outside);
+  }
+
   void Client::ApplyControlToVehicle(rpc::ActorId vehicle, const rpc::VehicleControl &control) {
     _pimpl->AsyncCall("apply_control_to_vehicle", vehicle, control);
   }

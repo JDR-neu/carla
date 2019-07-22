@@ -32,6 +32,8 @@ namespace client {
 
     void ClearFixedRoute();
 
+    void SetSpeedLimit(float InSpeedLimit, bool outside = false);
+
     /// Apply @a control to this vehicle.
     void ApplyControl(const Control &control);
 

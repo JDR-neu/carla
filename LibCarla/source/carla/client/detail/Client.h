@@ -149,6 +149,10 @@ namespace detail {
     void ClearActorFixedRoute(
         rpc::ActorId vehicle);
 
+    void SetActorSpeedLimit(
+        rpc::ActorId vehicle,
+        float InSpeedLimit, bool outside);
+
     void ApplyControlToVehicle(
         rpc::ActorId vehicle,
         const rpc::VehicleControl &control);

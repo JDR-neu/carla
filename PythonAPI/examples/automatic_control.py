@@ -245,7 +245,7 @@ class KeyboardControl(object):
             self._control = carla.VehicleControl()
             # world.player.set_autopilot(self._autopilot_enabled)
             # world.player.set_autopilot(True)
-            # world.player.set_speedlimit(23.5)
+            world.player.set_speed_limit(53.5, True)
             # sparse
             # world.player.set_fixed_route_one_point(906.55, 12885.20, 120)
             # world.player.set_fixed_route_one_point(918.56, 15265.16, 120)
