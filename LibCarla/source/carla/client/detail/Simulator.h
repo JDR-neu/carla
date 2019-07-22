@@ -307,6 +307,10 @@ namespace detail {
       _client.SetActorFixedRouteOnePoint(vehicle.GetId(), x, y, z);
     }
 
+    void ClearVehicleFixedRoute(Vehicle &vehicle) {
+      _client.ClearActorFixedRoute(vehicle.GetId());
+    }
+
     void ApplyControlToVehicle(Vehicle &vehicle, const rpc::VehicleControl &control) {
       _client.ApplyControlToVehicle(vehicle.GetId(), control);
     }

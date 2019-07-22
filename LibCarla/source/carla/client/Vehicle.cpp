@@ -36,6 +36,10 @@ namespace client {
     GetEpisode().Lock()->SetVehicleFixedRouteOnePoint(*this, x, y, z);
   }
 
+  void Vehicle::ClearFixedRoute() {
+    GetEpisode().Lock()->ClearVehicleFixedRoute(*this);
+  }
+
   void Vehicle::ApplyControl(const Control &control) {
     if (!_is_control_sticky || (control != _control)) {
       GetEpisode().Lock()->ApplyControlToVehicle(*this, control);

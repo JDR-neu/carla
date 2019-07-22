@@ -30,6 +30,8 @@ namespace client {
 
     void SetFixedRouteOnePoint(float x, float y, float z);
 
+    void ClearFixedRoute();
+
     /// Apply @a control to this vehicle.
     void ApplyControl(const Control &control);
 

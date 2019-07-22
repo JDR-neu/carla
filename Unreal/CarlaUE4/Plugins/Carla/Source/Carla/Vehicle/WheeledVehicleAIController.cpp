@@ -266,7 +266,11 @@ void AWheeledVehicleAIController::SetFixedRoute(
 void AWheeledVehicleAIController::SetFixedRouteOnePoint(float x, float y, float z) {
   UE_LOG(LogCarla, Warning, TEXT("********* SetFixedRouteOnePoint() **********"));
   TargetLocations.emplace(FVector(x, y, z));
+}
 
+void AWheeledVehicleAIController::ClearFixedRoute() {
+  UE_LOG(LogCarla, Warning, TEXT("********* ClearFixedRoute() **********"));
+  ClearQueue(TargetLocations);
 }
 
 // =============================================================================

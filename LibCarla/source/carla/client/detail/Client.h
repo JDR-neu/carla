@@ -146,6 +146,9 @@ namespace detail {
         rpc::ActorId vehicle,
         float x, float y, float z);
 
+    void ClearActorFixedRoute(
+        rpc::ActorId vehicle);
+
     void ApplyControlToVehicle(
         rpc::ActorId vehicle,
         const rpc::VehicleControl &control);

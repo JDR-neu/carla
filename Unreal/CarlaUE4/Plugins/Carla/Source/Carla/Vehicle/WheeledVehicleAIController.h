@@ -216,6 +216,10 @@ public:
   UFUNCTION(Category = "Wheeled Vehicle Controller", BlueprintCallable)
   void SetFixedRouteOnePoint(float x, float y, float z);
 
+  /// clear a fixed route if autopilot is enabled.
+  UFUNCTION(Category = "Wheeled Vehicle Controller", BlueprintCallable)
+  void ClearFixedRoute();
+
   /// @}
 
 private:

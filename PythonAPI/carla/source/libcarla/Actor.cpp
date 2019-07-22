@@ -99,6 +99,8 @@ void export_actor() {
       .def("set_autopilot", &cc::Vehicle::SetAutopilot, (arg("enabled") = true))
 
       .def("set_fixed_route_one_point", &cc::Vehicle::SetFixedRouteOnePoint, (arg("x"), arg("y"), arg("z")))
+      .def("clear_fixed_route", &cc::Vehicle::ClearFixedRoute)
+
       .def("get_speed_limit", &cc::Vehicle::GetSpeedLimit)
       .def("get_traffic_light_state", &cc::Vehicle::GetTrafficLightState)
       .def("is_at_traffic_light", &cc::Vehicle::IsAtTrafficLight)

@@ -244,6 +244,10 @@ namespace detail {
     _pimpl->AsyncCall("set_actor_fixed_route_one_point", vehicle, x, y, z);
   }
 
+  void Client::ClearActorFixedRoute(rpc::ActorId vehicle) {
+    _pimpl->AsyncCall("clear_actor_fixed_route", vehicle);
+  }
+
   void Client::ApplyControlToVehicle(rpc::ActorId vehicle, const rpc::VehicleControl &control) {
     _pimpl->AsyncCall("apply_control_to_vehicle", vehicle, control);
   }

@@ -244,7 +244,7 @@ class KeyboardControl(object):
         if isinstance(world.player, carla.Vehicle):
             self._control = carla.VehicleControl()
             # world.player.set_autopilot(self._autopilot_enabled)
-            world.player.set_autopilot(True)
+            # world.player.set_autopilot(True)
             # world.player.set_speedlimit(23.5)
             # sparse
             # world.player.set_fixed_route_one_point(906.55, 12885.20, 120)
@@ -257,6 +257,7 @@ class KeyboardControl(object):
             time.sleep(0.001)
             world.player.set_fixed_route_one_point(903.835, 12347.3, 120.0)
             time.sleep(0.001)
+            world.player.clear_fixed_route()
             world.player.set_fixed_route_one_point(909.003, 13371.2, 120.0)
             time.sleep(0.001)
             world.player.set_fixed_route_one_point(913.575, 14277.2, 120.0)
@@ -272,7 +273,9 @@ class KeyboardControl(object):
             world.player.set_fixed_route_one_point(943.684, 20245.6, 120.0)
             time.sleep(0.001)
             world.player.set_fixed_route_one_point(948.83, 21265.1, 120.0)
+            time.sleep(0.001)
 
+            world.player.set_autopilot(True)
             # interpolate 0.6
             # world.player.set_fixed_route_one_point(900.838, 11753.4, 120.0)
             # world.player.set_fixed_route_one_point(909.003, 13371.2, 120.0)
