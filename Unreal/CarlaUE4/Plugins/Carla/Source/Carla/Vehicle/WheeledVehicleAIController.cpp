@@ -271,6 +271,7 @@ void AWheeledVehicleAIController::SetFixedRouteOnePoint(float x, float y, float 
 void AWheeledVehicleAIController::ClearFixedRoute() {
   UE_LOG(LogCarla, Warning, TEXT("********* ClearFixedRoute() **********"));
   ClearQueue(TargetLocations);
+  ClearQueue(speeds);
 }
 
 // =============================================================================
@@ -377,6 +378,10 @@ float AWheeledVehicleAIController::GoToNextTargetLocation(FVector &Direction)
   if (Target.Equals(CurrentLocation, 100.0f))
   {
     TargetLocations.pop();
+    speeds.pop();
+    SpeedLimit = speeds.front();
+    UE_LOG(LogCarla, Warning, TEXT("------GoToNextTargetLocation(), new speed limit = %f -----"), SpeedLimit);
+
     UE_LOG(LogCarla, Warning, TEXT("666, TargetLocations.size() = %d"), TargetLocations.size());
 
     if (!TargetLocations.empty())

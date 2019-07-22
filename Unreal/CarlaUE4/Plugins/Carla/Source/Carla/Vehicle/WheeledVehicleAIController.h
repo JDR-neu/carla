@@ -177,7 +177,10 @@ public:
     UE_LOG(LogCarla, Warning, TEXT("********* before SetSpeedLimit(), SpeedLimit = %f **********"), SpeedLimit);
     if(outside) {
       UE_LOG(LogCarla, Warning, TEXT("********* SetSpeedLimit() from outside, InSpeedLimit = %f **********"), InSpeedLimit);
-      SpeedLimit = InSpeedLimit;
+      speeds.emplace(InSpeedLimit);
+      SpeedLimit = speeds.front();
+      // SpeedLimit = InSpeedLimit;
+
     } else {
       UE_LOG(LogCarla, Warning, TEXT("********* SetSpeedLimit() from inside, InSpeedLimit = %f **********"), InSpeedLimit);
     }
@@ -278,4 +281,5 @@ private:
   ATrafficLightBase *TrafficLight;
 
   std::queue<FVector> TargetLocations;
+  std::queue<float> speeds;
 };
