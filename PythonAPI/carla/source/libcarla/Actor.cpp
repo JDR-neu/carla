@@ -98,6 +98,7 @@ void export_actor() {
       .def("get_physics_control", CONST_CALL_WITHOUT_GIL(cc::Vehicle, GetPhysicsControl))
       .def("set_autopilot", &cc::Vehicle::SetAutopilot, (arg("enabled") = true))
 
+      .def("set_fixed_route_all", &cc::Vehicle::SetFixedRouteAll, (arg("locs")))
       .def("set_fixed_route_one_point", &cc::Vehicle::SetFixedRouteOnePoint, (arg("x"), arg("y"), arg("z")))
       .def("clear_fixed_route", &cc::Vehicle::ClearFixedRoute)
       .def("set_speed_limit", &cc::Vehicle::SetSpeedLimit, (arg("InSpeedLimit"), arg("outside") = false))

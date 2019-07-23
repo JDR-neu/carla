@@ -303,6 +303,10 @@ namespace detail {
       _client.SetActorAutopilot(vehicle.GetId(), enabled);
     }
 
+    void SetVehicleFixedRouteAll(Vehicle &vehicle, const std::vector<geom::Vector3D>& locs) {
+      _client.SetActorFixedRouteAll(vehicle.GetId(), locs);
+    }
+
     void SetVehicleFixedRouteOnePoint(Vehicle &vehicle, float x, float y, float z) {
       _client.SetActorFixedRouteOnePoint(vehicle.GetId(), x, y, z);
     }

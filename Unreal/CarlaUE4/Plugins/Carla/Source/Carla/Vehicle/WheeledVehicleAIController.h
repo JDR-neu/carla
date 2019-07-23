@@ -219,6 +219,9 @@ public:
   UFUNCTION(Category = "Wheeled Vehicle Controller", BlueprintCallable)
   void SetFixedRoute(const TArray<FVector> &Locations, bool bOverwriteCurrent = true);
 
+  UFUNCTION(Category = "Wheeled Vehicle Controller", BlueprintCallable)
+  void SetFixedRouteAll(const TArray<FVector> &locs);
+
   /// Set a fixed route to follow if autopilot is enabled.
   UFUNCTION(Category = "Wheeled Vehicle Controller", BlueprintCallable)
   void SetFixedRouteOnePoint(float x, float y, float z);

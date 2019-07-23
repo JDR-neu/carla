@@ -32,6 +32,10 @@ namespace client {
     GetEpisode().Lock()->SetVehicleAutopilot(*this, enabled);
   }
 
+  void Vehicle::SetFixedRouteAll(const std::vector<geom::Vector3D>& locs) {
+    GetEpisode().Lock()->SetVehicleFixedRouteAll(*this, locs);
+  }
+
   void Vehicle::SetFixedRouteOnePoint(float x, float y, float z) {
     GetEpisode().Lock()->SetVehicleFixedRouteOnePoint(*this, x, y, z);
   }

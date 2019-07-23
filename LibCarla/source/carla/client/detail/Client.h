@@ -142,6 +142,10 @@ namespace detail {
         rpc::ActorId vehicle,
         bool enabled);
 
+    void SetActorFixedRouteAll(
+        rpc::ActorId vehicle,
+        const std::vector<geom::Vector3D>& locs);
+
     void SetActorFixedRouteOnePoint(
         rpc::ActorId vehicle,
         float x, float y, float z);

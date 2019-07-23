@@ -28,6 +28,8 @@ namespace client {
     /// Switch on/off this vehicle's autopilot.
     void SetAutopilot(bool enabled = true);
 
+    void SetFixedRouteAll(const std::vector<geom::Vector3D>& locs);
+
     void SetFixedRouteOnePoint(float x, float y, float z);
 
     void ClearFixedRoute();
