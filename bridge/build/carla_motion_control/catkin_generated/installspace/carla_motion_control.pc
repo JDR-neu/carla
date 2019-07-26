@@ -1,0 +1,8 @@
+prefix=/home/goujs/carla/bridge/install
+
+Name: carla_motion_control
+Description: Description of carla_motion_control
+Version: 0.0.0
+Cflags: 
+Libs: -L/home/goujs/carla/bridge/install/lib 
+Requires: roscpp rospy message_runtime
