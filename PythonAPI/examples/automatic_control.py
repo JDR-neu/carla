@@ -315,6 +315,7 @@ class KeyboardControl(object):
                 return True
             elif event.type == pygame.KEYUP:
                 if self._is_quit_shortcut(event.key):
+                    print("ESC key down")
                     return True
                 elif event.key == K_BACKSPACE:
                     world.restart()
@@ -881,6 +882,7 @@ def game_loop(args):
         clock = pygame.time.Clock()
         while True:
             if controller.parse_events(client, world, clock):
+                print("exit")
                 return
 
             # as soon as the server is ready continue!

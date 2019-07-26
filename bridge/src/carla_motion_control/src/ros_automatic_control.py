@@ -218,29 +218,41 @@ class KeyboardControl(object):
     def parse_events(self, client, world, clock):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
+                print("pygame.QUIT")
                 return True
             elif event.type == pygame.KEYUP:
                 if self._is_quit_shortcut(event.key):
+                    print("quit")
                     return True
                 elif event.key == K_BACKSPACE:
+                    print("K_BACKSPACE")
                     world.restart()
                 elif event.key == K_F1:
+                    print("K_F1")
                     world.hud.toggle_info()
                 elif event.key == K_h or (event.key == K_SLASH and pygame.key.get_mods() & KMOD_SHIFT):
+                    print("K_h K_SLASH")
                     world.hud.help.toggle()
                 elif event.key == K_TAB:
+                    print("K_TAB")
                     world.camera_manager.toggle_camera()
                 elif event.key == K_c and pygame.key.get_mods() & KMOD_SHIFT:
+                    print("K_c KMOD_SHIFT")
                     world.next_weather(reverse=True)
                 elif event.key == K_c:
+                    print("K_c")
                     world.next_weather()
                 elif event.key == K_BACKQUOTE:
+                    print("K_BACKQUOTE")
                     world.camera_manager.next_sensor()
                 elif event.key > K_0 and event.key <= K_9:
+                    print("0-9")
                     world.camera_manager.set_sensor(event.key - 1 - K_0)
                 elif event.key == K_r and not (pygame.key.get_mods() & KMOD_CTRL):
+                    print("K_r not KMOD_CTRL")
                     world.camera_manager.toggle_recording()
                 elif event.key == K_r and (pygame.key.get_mods() & KMOD_CTRL):
+                    print("K_r")
                     if (world.recording_enabled):
                         client.stop_recorder()
                         world.recording_enabled = False
@@ -250,6 +262,7 @@ class KeyboardControl(object):
                         world.recording_enabled = True
                         world.hud.notification("Recorder is ON")
                 elif event.key == K_p and (pygame.key.get_mods() & KMOD_CTRL):
+                    print("K_p")
                     # stop recorder
                     client.stop_recorder()
                     world.recording_enabled = False
@@ -264,12 +277,14 @@ class KeyboardControl(object):
                     client.replay_file("manual_recording.rec", world.recording_start, 0, 0)
                     world.camera_manager.set_sensor(currentIndex)
                 elif event.key == K_MINUS and (pygame.key.get_mods() & KMOD_CTRL):
+                    print("K_MINUS")
                     if pygame.key.get_mods() & KMOD_SHIFT:
                         world.recording_start -= 10
                     else:
                         world.recording_start -= 1
                     world.hud.notification("Recording start time is %d" % (world.recording_start))
                 elif event.key == K_EQUALS and (pygame.key.get_mods() & KMOD_CTRL):
+                    print("K_EQUALS")
                     if pygame.key.get_mods() & KMOD_SHIFT:
                         world.recording_start += 10
                     else:
@@ -277,17 +292,22 @@ class KeyboardControl(object):
                     world.hud.notification("Recording start time is %d" % (world.recording_start))
                 if isinstance(self._control, carla.VehicleControl):
                     if event.key == K_q:
+                        print("K_q")
                         self._control.gear = 1 if self._control.reverse else -1
                     elif event.key == K_m:
+                        print("K_m")
                         self._control.manual_gear_shift = not self._control.manual_gear_shift
                         self._control.gear = world.player.get_control().gear
                         world.hud.notification('%s Transmission' % (
                             'Manual' if self._control.manual_gear_shift else 'Automatic'))
                     elif self._control.manual_gear_shift and event.key == K_COMMA:
+                        print("K_COMMA")
                         self._control.gear = max(-1, self._control.gear - 1)
                     elif self._control.manual_gear_shift and event.key == K_PERIOD:
+                        print("K_PERIOD")
                         self._control.gear = self._control.gear + 1
                     elif event.key == K_p and not (pygame.key.get_mods() & KMOD_CTRL):
+                        print("K_p not KMOD_CTRL")
                         self._autopilot_enabled = not self._autopilot_enabled
                         world.player.set_autopilot(self._autopilot_enabled)
                         world.hud.notification(
@@ -757,6 +777,8 @@ class PygamePlayer(object):
 
         while True:
             if self.controller.parse_events(self.client, self.world, clock):
+                print("should exit")
+                rospy.signal_shutdown("closed!")
                 return
 
             # as soon as the server is ready continue!
