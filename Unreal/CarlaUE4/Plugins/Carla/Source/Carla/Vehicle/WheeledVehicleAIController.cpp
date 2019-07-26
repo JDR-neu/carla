@@ -324,7 +324,6 @@ FVehicleControl AWheeledVehicleAIController::TickAutopilotController()
   
     Direction = Vehicle->GetVehicleTransform().GetRotation().Rotator().Vector();
   }
-  UE_LOG(LogCarla, Warning, TEXT("TickAutopilotController(), Steering = %f"), Steering);
 
   // Speed in km/h. cm/s ===> km/h
   const auto Speed = Vehicle->GetVehicleForwardSpeed() * 0.036f;
@@ -356,7 +355,6 @@ FVehicleControl AWheeledVehicleAIController::TickAutopilotController()
     AutopilotControl.Throttle = Throttle;
   }
   AutopilotControl.Steer = Steering;
-  UE_LOG(LogCarla, Warning, TEXT("Steering = %f"), Steering);
 
   return AutopilotControl;
 }
@@ -437,7 +435,6 @@ float AWheeledVehicleAIController::GoToNextTargetLocation(FVector &Direction)
   }
 
   Vehicle->SetAIVehicleState(ECarlaWheeledVehicleState::FollowingFixedRoute);
-  UE_LOG(LogCarla, Warning, TEXT("GoToNextTargetLocation(), Steering = %f"), Steering);
 
   return Steering;
 }
@@ -486,24 +483,18 @@ float AWheeledVehicleAIController::CalcStreeringValue(FVector &direction)
   if (!rightRoadData.IsRoad())
   {
     steering -= 0.2f;
-  UE_LOG(LogCarla, Warning, TEXT("11, CalcStreeringValue(), Steering = %f"), steering);
-
   }
 
   FRoadMapPixelData leftRoadData = RoadMap->GetDataAt(leftPosition);
   if (!leftRoadData.IsRoad())
   {
     steering += 0.2f;
-  UE_LOG(LogCarla, Warning, TEXT("22, CalcStreeringValue(), Steering = %f"), steering);
-
   }
 
   FRoadMapPixelData roadData = RoadMap->GetDataAt(GetPawn()->GetActorLocation());
   if (!roadData.IsRoad())
   {
     steering = 0.0f;
-  UE_LOG(LogCarla, Warning, TEXT("33, CalcStreeringValue(), Steering = %f"), steering);
-
   }
   else if (roadData.HasDirection())
   {
@@ -540,14 +531,10 @@ float AWheeledVehicleAIController::CalcStreeringValue(FVector &direction)
       if (rightAngle < min && rightAngle > max)
       {
         steering -= 0.2f;
-  UE_LOG(LogCarla, Warning, TEXT("44, CalcStreeringValue(), Steering = %f"), steering);
-
       }
       if (leftAngle < min && leftAngle > max)
       {
         steering += 0.2f;
-  UE_LOG(LogCarla, Warning, TEXT("55, CalcStreeringValue(), Steering = %f"), steering);
-
       }
     }
     else
@@ -555,14 +542,10 @@ float AWheeledVehicleAIController::CalcStreeringValue(FVector &direction)
       if (rightAngle < min || rightAngle > max)
       {
         steering -= 0.2f;
-  UE_LOG(LogCarla, Warning, TEXT("66, CalcStreeringValue(), Steering = %f"), steering);
-
       }
       if (leftAngle < min || leftAngle > max)
       {
         steering += 0.2f;
-  UE_LOG(LogCarla, Warning, TEXT("77, CalcStreeringValue(), Steering = %f"), steering);
-
       }
     }
 
@@ -580,26 +563,19 @@ float AWheeledVehicleAIController::CalcStreeringValue(FVector &direction)
     if (angle < -MaximumSteerAngle)
     {
       steering = -1.0f;
-  UE_LOG(LogCarla, Warning, TEXT("88, CalcStreeringValue(), Steering = %f"), steering);
-
     }
     else if (angle > MaximumSteerAngle)
     {
       steering = 1.0f;
-  UE_LOG(LogCarla, Warning, TEXT("99, CalcStreeringValue(), Steering = %f"), steering);
-
     }
     else
     {
       steering += angle / MaximumSteerAngle;
-  UE_LOG(LogCarla, Warning, TEXT("00, CalcStreeringValue(), Steering = %f"), steering);
-
     }
   }
 
   Vehicle->SetAIVehicleState(ECarlaWheeledVehicleState::FreeDriving);
-  UE_LOG(LogCarla, Warning, TEXT("CalcStreeringValue(), Steering = %f"), steering);
-  
+ 
   return steering;
 }
 

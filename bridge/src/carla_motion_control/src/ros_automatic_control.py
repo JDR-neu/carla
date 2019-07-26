@@ -204,7 +204,8 @@ class World(object):
 
 class KeyboardControl(object):
     def __init__(self, world):
-        self._autopilot_enabled = False
+        self._autopilot_enabled = True
+        world.player.set_autopilot(True)
         if isinstance(world.player, carla.Vehicle):
             self._control = carla.VehicleControl()
         else:
@@ -729,6 +730,7 @@ class PygamePlayer(object):
 
         hud = HUD(1280, 720)
         self.world = World(self.client.get_world(), hud, 'vehicle.*')
+        self.world.player.set_autopilot(True)
         self.controller = KeyboardControl(self.world)
 
         self.agent = BasicAgent(self.world.player)
