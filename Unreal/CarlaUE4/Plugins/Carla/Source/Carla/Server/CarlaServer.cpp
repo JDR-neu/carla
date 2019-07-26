@@ -657,33 +657,34 @@ void FCarlaServer::FPimpl::BindActions()
     return R<void>::Success();
   };
 
-  BIND_SYNC(set_actor_fixed_route_all) << [this](
-    cr::ActorId ActorId,
-    const std::vector<cr::Vector3D>& locs) -> R<void>
-  {
-    REQUIRE_CARLA_EPISODE();
-    auto ActorView = Episode->FindActor(ActorId);
-    if (!ActorView.IsValid())
-    {
-      RESPOND_ERROR("unable to set fixed route: actor not found");
-    }
-    auto Vehicle = Cast<ACarlaWheeledVehicle>(ActorView.GetActor());
-    if (Vehicle == nullptr)
-    {
-      RESPOND_ERROR("unable to set fixed route: vehicle is nullptr");
-    }
-    auto Controller = Cast<AWheeledVehicleAIController>(Vehicle->GetController());
-    if (Controller == nullptr)
-    {
-      RESPOND_ERROR("unable to set fixed route: vehicle controller is nullptr");
-    }
-    TArray<FVector> arr;
-    for(const auto& pt : locs) {
-      arr.Emplace(FVector(pt.x, pt.y, pt.z));
-    }
-    Controller->SetFixedRouteAll(arr);
-    return R<void>::Success();
-  };
+  // BIND_SYNC(set_actor_fixed_route_all) << [this](
+  //   cr::ActorId ActorId,
+  //   const boost::python::list& locs) -> R<void>
+  // {
+  //   REQUIRE_CARLA_EPISODE();
+  //   auto ActorView = Episode->FindActor(ActorId);
+  //   if (!ActorView.IsValid())
+  //   {
+  //     RESPOND_ERROR("unable to set fixed route: actor not found");
+  //   }
+  //   auto Vehicle = Cast<ACarlaWheeledVehicle>(ActorView.GetActor());
+  //   if (Vehicle == nullptr)
+  //   {
+  //     RESPOND_ERROR("unable to set fixed route: vehicle is nullptr");
+  //   }
+  //   auto Controller = Cast<AWheeledVehicleAIController>(Vehicle->GetController());
+  //   if (Controller == nullptr)
+  //   {
+  //     RESPOND_ERROR("unable to set fixed route: vehicle controller is nullptr");
+  //   }
+  //   TArray<FVector> arr;
+  //   for(int i=0; i<boost::python::len(locs); i++) {
+  //     cr::Vector3D pt = boost::python::extract<cr::Vector3D>(locs[i]);
+  //     arr.Emplace(FVector(pt.x, pt.y, pt.z));
+  //   }
+  //   Controller->SetFixedRouteAll(arr);
+  //   return R<void>::Success();
+  // };
 
   BIND_SYNC(set_actor_fixed_route_one_point) << [this](
     cr::ActorId ActorId,

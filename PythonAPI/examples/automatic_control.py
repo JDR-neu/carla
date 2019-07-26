@@ -69,10 +69,12 @@ except ImportError:
 # -- find carla module ---------------------------------------------------------
 # ==============================================================================
 try:
-    sys.path.append(glob.glob('../carla/dist/carla-*%d.%d-%s.egg' % (
+    carla_module = glob.glob('/home/goujs/carla/PythonAPI/carla/dist/carla-*%d.%d-%s.egg' % (
         sys.version_info.major,
         sys.version_info.minor,
-        'win-amd64' if os.name == 'nt' else 'linux-x86_64'))[0])
+        'win-amd64' if os.name == 'nt' else 'linux-x86_64'))
+    print(carla_module)
+    sys.path.append(carla_module[0])
 except IndexError:
     pass
 
@@ -247,46 +249,46 @@ class KeyboardControl(object):
             # world.player.set_autopilot(True)
 
             # sparse
-            path = list({Vector3D(906.55, 12885.20, 120), Vector3D(918.56, 15265.16, 120),
-                         Vector3D(934.70, 18465.13, 120), Vector3D(948.83, 21265.09, 120)})
-            world.player.set_fixed_route_all(path)
+            # path = list({Vector3D(906.55, 12885.20, 120), Vector3D(918.56, 15265.16, 120),
+            #              Vector3D(934.70, 18465.13, 120), Vector3D(948.83, 21265.09, 120)})
+            # world.player.set_fixed_route_all(path)
             # world.player.set_fixed_route_one_point(906.55, 12885.20, 120)
             # world.player.set_fixed_route_one_point(918.56, 15265.16, 120)
             # world.player.set_fixed_route_one_point(934.70, 18465.13, 120)
             # world.player.set_fixed_route_one_point(948.83, 21265.09, 120)
 
             # interpolate 0.4
-            # world.player.set_fixed_route_one_point(897.557, 11103.4, 120.0)
-            # world.player.set_speed_limit(13.5, True)
-            # time.sleep(0.001)
-            # world.player.set_fixed_route_one_point(903.835, 12347.3, 120.0)
-            # world.player.set_speed_limit(13.5, True)
-            # time.sleep(0.001)
-            # # world.player.clear_fixed_route()
-            # world.player.set_fixed_route_one_point(909.003, 13371.2, 120.0)
-            # world.player.set_speed_limit(13.5, True)
-            # time.sleep(0.001)
-            # world.player.set_fixed_route_one_point(913.575, 14277.2, 120.0)
-            # world.player.set_speed_limit(13.5, True)
-            # time.sleep(0.001)
-            # world.player.set_fixed_route_one_point(918.56, 15265.2, 120.0)
-            # world.player.set_speed_limit(43.5, True)
-            # time.sleep(0.001)
-            # world.player.set_fixed_route_one_point(924.675, 16477.5, 120.0)
-            # world.player.set_speed_limit(43.5, True)
-            # time.sleep(0.001)
-            # world.player.set_fixed_route_one_point(931.386, 17808.1, 120.0)
-            # world.player.set_speed_limit(43.5, True)
-            # time.sleep(0.001)
-            # world.player.set_fixed_route_one_point(937.863, 19092.1, 120.0)
-            # world.player.set_speed_limit(43.5, True)
-            # time.sleep(0.001)
-            # world.player.set_fixed_route_one_point(943.684, 20245.6, 120.0)
-            # world.player.set_speed_limit(43.5, True)
-            # time.sleep(0.001)
-            # world.player.set_fixed_route_one_point(948.83, 21265.1, 120.0)
-            # world.player.set_speed_limit(43.5, True)
-            # time.sleep(0.001)
+            world.player.set_fixed_route_one_point(897.557, 11103.4, 120.0)
+            world.player.set_speed_limit(13.5, True)
+            time.sleep(0.001)
+            world.player.set_fixed_route_one_point(903.835, 12347.3, 120.0)
+            world.player.set_speed_limit(13.5, True)
+            time.sleep(0.001)
+            # world.player.clear_fixed_route()
+            world.player.set_fixed_route_one_point(909.003, 13371.2, 120.0)
+            world.player.set_speed_limit(13.5, True)
+            time.sleep(0.001)
+            world.player.set_fixed_route_one_point(913.575, 14277.2, 120.0)
+            world.player.set_speed_limit(13.5, True)
+            time.sleep(0.001)
+            world.player.set_fixed_route_one_point(918.56, 15265.2, 120.0)
+            world.player.set_speed_limit(43.5, True)
+            time.sleep(0.001)
+            world.player.set_fixed_route_one_point(924.675, 16477.5, 120.0)
+            world.player.set_speed_limit(43.5, True)
+            time.sleep(0.001)
+            world.player.set_fixed_route_one_point(931.386, 17808.1, 120.0)
+            world.player.set_speed_limit(43.5, True)
+            time.sleep(0.001)
+            world.player.set_fixed_route_one_point(937.863, 19092.1, 120.0)
+            world.player.set_speed_limit(43.5, True)
+            time.sleep(0.001)
+            world.player.set_fixed_route_one_point(943.684, 20245.6, 120.0)
+            world.player.set_speed_limit(43.5, True)
+            time.sleep(0.001)
+            world.player.set_fixed_route_one_point(948.83, 21265.1, 120.0)
+            world.player.set_speed_limit(43.5, True)
+            time.sleep(0.001)
 
             world.player.set_autopilot(True)
             # interpolate 0.6

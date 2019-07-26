@@ -27,6 +27,9 @@
 #include <string>
 #include <vector>
 
+#include <boost/python.hpp>
+#include "python2.7/Python.h"
+
 // Forward declarations.
 namespace carla {
   class Buffer;
@@ -142,9 +145,9 @@ namespace detail {
         rpc::ActorId vehicle,
         bool enabled);
 
-    void SetActorFixedRouteAll(
-        rpc::ActorId vehicle,
-        const std::vector<geom::Vector3D>& locs);
+    // void SetActorFixedRouteAll(
+    //     rpc::ActorId vehicle,
+    //     const boost::python::list &locs);
 
     void SetActorFixedRouteOnePoint(
         rpc::ActorId vehicle,
