@@ -13,6 +13,7 @@ import sys
 import weakref
 import time
 import numpy as np
+import wiringpi2
 
 import pygame
 from pygame.locals import KMOD_CTRL
@@ -773,8 +774,8 @@ class PygamePlayer(object):
             for pt in traj:
                 self.world.player.set_fixed_route_one_point(pt.path_point_.x_, pt.path_point_.y_, 120.0)
                 self.world.player.set_speed_limit(pt.v_, True)
-                time.sleep(0.001)
-
+                # time.sleep(0.001)
+                wiringpi2.delayMicroseconds(1)
         while True:
             if self.controller.parse_events(self.client, self.world, clock):
                 print("should exit")
