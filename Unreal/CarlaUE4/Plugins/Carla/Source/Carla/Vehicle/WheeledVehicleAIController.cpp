@@ -15,6 +15,8 @@
 #include "GameFramework/Pawn.h"
 #include "WheeledVehicleMovementComponent.h"
 
+#include <algorithm>
+
 // =============================================================================
 // -- Static local methods -----------------------------------------------------
 // =============================================================================
@@ -151,7 +153,7 @@ void AWheeledVehicleAIController::OnUnPossess()
 
 void AWheeledVehicleAIController::Tick(const float DeltaTime)
 {
-  UE_LOG(LogCarla, Warning, TEXT("********* Tick() **********"));
+  // UE_LOG(LogCarla, Warning, TEXT("********* Tick() **********"));
 
   Super::Tick(DeltaTime);
 
@@ -346,7 +348,8 @@ FVehicleControl AWheeledVehicleAIController::TickAutopilotController()
 
   if (Throttle < 0.001f)
   {
-    AutopilotControl.Brake = 1.0f;
+    // AutopilotControl.Brake = 1.0f;
+    AutopilotControl.Brake += std::min(fabs(Speed - SpeedLimit)/SpeedLimit, 1.0f);
     AutopilotControl.Throttle = 0.0f;
   }
   else
@@ -588,14 +591,15 @@ float AWheeledVehicleAIController::Stop(const float Speed)
 float AWheeledVehicleAIController::Move(const float Speed)
 {
   UE_LOG(LogCarla, Warning, TEXT("********* Move(), speed = %f, SpeedLimit = %f **********"), Speed, SpeedLimit);
-  if (Speed >= SpeedLimit)
+  if (Speed > SpeedLimit)
   {
-    return Stop(Speed);
+    // return Stop(Speed);
+    return 0.0f;
   }
   // else if (Speed >= SpeedLimit - 10.0f)
   else if (Speed >= SpeedLimit * 0.95f)
   {
-    return 0.5f;
+    return 0.3 + fabs(Speed - SpeedLimit)/SpeedLimit; 
   }
   else
   {
