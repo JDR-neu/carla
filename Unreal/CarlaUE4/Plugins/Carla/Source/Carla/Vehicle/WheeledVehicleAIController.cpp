@@ -387,7 +387,7 @@ float AWheeledVehicleAIController::GoToNextTargetLocation(FVector &Direction)
   UE_LOG(LogCarla, Warning, TEXT("------target location = (%f, %f, %f)"), Target.X, Target.Y, Target.Z);
   UE_LOG(LogCarla, Warning, TEXT("555, TargetLocations.size() = %d"), TargetLocations.size());
 
-  if (Target.Equals(CurrentLocation, 100.0f))
+  if (Target.Equals(CurrentLocation, 150.0f))
   {
     TargetLocations.pop();
     speeds.pop();
