@@ -161,10 +161,10 @@ class World(object):
             # print(info)
             self.player = self.world.try_spawn_actor(blueprint, g_spawn_point)
         # Set up the sensors.
-        self.collision_sensor = CollisionSensor(self.player, g_hud)
-        self.lane_invasion_sensor = LaneInvasionSensor(self.player, g_hud)
+        self.collision_sensor = CollisionSensor(self.player)
+        self.lane_invasion_sensor = LaneInvasionSensor(self.player)
         self.gnss_sensor = GnssSensor(self.player)
-        self.camera_manager = CameraManager(self.player, g_hud)
+        self.camera_manager = CameraManager(self.player)
         self.camera_manager.transform_index = cam_pos_index
         self.camera_manager.set_sensor(cam_index, notify=False)
         actor_type = get_actor_display_name(self.player)
@@ -556,11 +556,11 @@ class FadingText(object):
 # ==============================================================================
 
 class CollisionSensor(object):
-    def __init__(self, parent_actor, hud):
+    def __init__(self, parent_actor):
+        global g_hud
         self.sensor = None
         self.history = []
         self._parent = parent_actor
-        g_hud = hud
         world = self._parent.get_world()
         bp = world.get_blueprint_library().find('sensor.other.collision')
         self.sensor = world.spawn_actor(bp, carla.Transform(), attach_to=self._parent)
@@ -593,10 +593,10 @@ class CollisionSensor(object):
 # ==============================================================================
 
 class LaneInvasionSensor(object):
-    def __init__(self, parent_actor, hud):
+    def __init__(self, parent_actor):
+        global g_hud
         self.sensor = None
         self._parent = parent_actor
-        g_hud = hud
         world = self._parent.get_world()
         bp = world.get_blueprint_library().find('sensor.other.lane_invasion')
         self.sensor = world.spawn_actor(bp, carla.Transform(), attach_to=self._parent)
@@ -646,11 +646,11 @@ class GnssSensor(object):
 # ==============================================================================
 
 class CameraManager(object):
-    def __init__(self, parent_actor, hud):
+    def __init__(self, parent_actor):
+        global g_hud
         self.sensor = None
         self.surface = None
         self._parent = parent_actor
-        self.hud = hud
         self.recording = False
         self._camera_transforms = [
             carla.Transform(carla.Location(x=-5.5, z=2.8), carla.Rotation(pitch=-15)),
@@ -670,8 +670,8 @@ class CameraManager(object):
         for item in self.sensors:
             bp = bp_library.find(item[0])
             if item[0].startswith('sensor.camera'):
-                bp.set_attribute('image_size_x', str(hud.dim[0]))
-                bp.set_attribute('image_size_y', str(hud.dim[1]))
+                bp.set_attribute('image_size_x', str(g_hud.dim[0]))
+                bp.set_attribute('image_size_y', str(g_hud.dim[1]))
             elif item[0].startswith('sensor.lidar'):
                 bp.set_attribute('range', '5000')
             item.append(bp)
