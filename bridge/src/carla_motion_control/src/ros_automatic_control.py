@@ -117,10 +117,10 @@ def get_actor_display_name(actor, truncate=250):
 # ==============================================================================
 
 class World(object):
-    def __init__(self, carla_world, hud, actor_filter):
+    def __init__(self, carla_world, actor_filter):
+        global g_hud
         self.world = carla_world
         self.map = self.world.get_map()
-        self.hud = hud
         self.player = None
         self.collision_sensor = None
         self.lane_invasion_sensor = None
@@ -130,7 +130,7 @@ class World(object):
         self._weather_index = 0
         self._actor_filter = actor_filter
         self.restart()
-        self.world.on_tick(hud.on_world_tick)
+        self.world.on_tick(g_hud.on_world_tick)
         self.recording_enabled = False
         self.recording_start = 0
 
@@ -169,28 +169,28 @@ class World(object):
             # print(info)
             self.player = self.world.try_spawn_actor(blueprint, spawn_point)
         # Set up the sensors.
-        self.collision_sensor = CollisionSensor(self.player, self.hud)
-        self.lane_invasion_sensor = LaneInvasionSensor(self.player, self.hud)
+        self.collision_sensor = CollisionSensor(self.player, g_hud)
+        self.lane_invasion_sensor = LaneInvasionSensor(self.player, g_hud)
         self.gnss_sensor = GnssSensor(self.player)
-        self.camera_manager = CameraManager(self.player, self.hud)
+        self.camera_manager = CameraManager(self.player, g_hud)
         self.camera_manager.transform_index = cam_pos_index
         self.camera_manager.set_sensor(cam_index, notify=False)
         actor_type = get_actor_display_name(self.player)
-        self.hud.notification(actor_type)
+        g_hud.notification(actor_type)
 
     def next_weather(self, reverse=False):
         self._weather_index += -1 if reverse else 1
         self._weather_index %= len(self._weather_presets)
         preset = self._weather_presets[self._weather_index]
-        self.hud.notification('Weather: %s' % preset[1])
+        g_hud.notification('Weather: %s' % preset[1])
         self.player.get_world().set_weather(preset[0])
 
     def tick(self, clock):
-        self.hud.tick(clock)
+        g_hud.tick(clock)
 
     def render(self, display):
         self.camera_manager.render(display)
-        self.hud.render(display)
+        g_hud.render(display)
 
     def destroy_sensors(self):
         self.camera_manager.sensor.destroy()
@@ -223,7 +223,7 @@ class KeyboardControl(object):
             print("Error: no vehicle instance")
 
         self._steer_cache = 0.0
-        g_world.hud.notification("Press 'H' or '?' for help.", seconds=4.0)
+        g_hud.notification("Press 'H' or '?' for help.", seconds=4.0)
 
         g_world.player.set_autopilot(True)
 
@@ -255,10 +255,10 @@ class KeyboardControl(object):
                     g_world.restart()
                 elif event.key == K_F1:
                     print("K_F1")
-                    g_world.hud.toggle_info()
+                    g_hud.toggle_info()
                 elif event.key == K_h or (event.key == K_SLASH and pygame.key.get_mods() & KMOD_SHIFT):
                     print("K_h K_SLASH")
-                    g_world.hud.help.toggle()
+                    g_hud.help.toggle()
                 elif event.key == K_TAB:
                     print("K_TAB")
                     g_world.camera_manager.toggle_camera()
@@ -282,11 +282,11 @@ class KeyboardControl(object):
                     if (g_world.recording_enabled):
                         g_client.stop_recorder()
                         g_world.recording_enabled = False
-                        g_world.hud.notification("Recorder is OFF")
+                        g_hud.notification("Recorder is OFF")
                     else:
                         g_client.start_recorder("manual_recording.rec")
                         g_world.recording_enabled = True
-                        g_world.hud.notification("Recorder is ON")
+                        g_hud.notification("Recorder is ON")
                 elif event.key == K_p and (pygame.key.get_mods() & KMOD_CTRL):
                     print("K_p")
                     # stop recorder
@@ -298,7 +298,7 @@ class KeyboardControl(object):
                     # disable autopilot
                     self._autopilot_enabled = False
                     g_world.player.set_autopilot(self._autopilot_enabled)
-                    g_world.hud.notification("Replaying file 'manual_recording.rec'")
+                    g_hud.notification("Replaying file 'manual_recording.rec'")
                     # replayer
                     g_client.replay_file("manual_recording.rec", world.recording_start, 0, 0)
                     g_world.camera_manager.set_sensor(currentIndex)
@@ -308,14 +308,14 @@ class KeyboardControl(object):
                         g_world.recording_start -= 10
                     else:
                         g_world.recording_start -= 1
-                    g_world.hud.notification("Recording start time is %d" % (g_world.recording_start))
+                    g_hud.notification("Recording start time is %d" % (g_world.recording_start))
                 elif event.key == K_EQUALS and (pygame.key.get_mods() & KMOD_CTRL):
                     print("K_EQUALS")
                     if pygame.key.get_mods() & KMOD_SHIFT:
                         g_world.recording_start += 10
                     else:
                         g_world.recording_start += 1
-                    g_world.hud.notification("Recording start time is %d" % (g_world.recording_start))
+                    g_hud.notification("Recording start time is %d" % (g_world.recording_start))
                 if isinstance(self._control, carla.VehicleControl):
                     if event.key == K_q:
                         print("K_q")
@@ -324,7 +324,7 @@ class KeyboardControl(object):
                         print("K_m")
                         self._control.manual_gear_shift = not self._control.manual_gear_shift
                         self._control.gear = g_world.player.get_control().gear
-                        g_world.hud.notification('%s Transmission' % (
+                        g_hud.notification('%s Transmission' % (
                             'Manual' if self._control.manual_gear_shift else 'Automatic'))
                     elif self._control.manual_gear_shift and event.key == K_COMMA:
                         print("K_COMMA")
@@ -336,7 +336,7 @@ class KeyboardControl(object):
                         print("K_p not KMOD_CTRL")
                         self._autopilot_enabled = not self._autopilot_enabled
                         g_world.player.set_autopilot(self._autopilot_enabled)
-                        g_world.hud.notification(
+                        g_hud.notification(
                             'Autopilot %s' % ('On' if self._autopilot_enabled else 'Off'))
         if not self._autopilot_enabled:
             if isinstance(self._control, carla.VehicleControl):
@@ -575,7 +575,7 @@ class CollisionSensor(object):
         self.sensor = None
         self.history = []
         self._parent = parent_actor
-        self.hud = hud
+        g_hud = hud
         world = self._parent.get_world()
         bp = world.get_blueprint_library().find('sensor.other.collision')
         self.sensor = world.spawn_actor(bp, carla.Transform(), attach_to=self._parent)
@@ -596,7 +596,7 @@ class CollisionSensor(object):
         if not self:
             return
         actor_type = get_actor_display_name(event.other_actor)
-        self.hud.notification('Collision with %r' % actor_type)
+        g_hud.notification('Collision with %r' % actor_type)
         impulse = event.normal_impulse
         intensity = math.sqrt(impulse.x ** 2 + impulse.y ** 2 + impulse.z ** 2)
         self.history.append((event.frame, intensity))
@@ -611,7 +611,7 @@ class LaneInvasionSensor(object):
     def __init__(self, parent_actor, hud):
         self.sensor = None
         self._parent = parent_actor
-        self.hud = hud
+        g_hud = hud
         world = self._parent.get_world()
         bp = world.get_blueprint_library().find('sensor.other.lane_invasion')
         self.sensor = world.spawn_actor(bp, carla.Transform(), attach_to=self._parent)
@@ -627,7 +627,7 @@ class LaneInvasionSensor(object):
             return
         lane_types = set(x.type for x in event.crossed_lane_markings)
         text = ['%r' % str(x).split()[-1] for x in lane_types]
-        self.hud.notification('Crossed line %s' % ' and '.join(text))
+        g_hud.notification('Crossed line %s' % ' and '.join(text))
 
 # ==============================================================================
 # -- GnssSensor --------------------------------------------------------
@@ -665,7 +665,7 @@ class CameraManager(object):
         self.sensor = None
         self.surface = None
         self._parent = parent_actor
-        self.hud = hud
+        g_hud = hud
         self.recording = False
         self._camera_transforms = [
             carla.Transform(carla.Location(x=-5.5, z=2.8), carla.Rotation(pitch=-15)),
@@ -713,7 +713,7 @@ class CameraManager(object):
             weak_self = weakref.ref(self)
             self.sensor.listen(lambda image: CameraManager._parse_image(weak_self, image))
         if notify:
-            self.hud.notification(self.sensors[index][2])
+            g_hud.notification(self.sensors[index][2])
         self.index = index
 
     def next_sensor(self):
@@ -721,7 +721,7 @@ class CameraManager(object):
 
     def toggle_recording(self):
         self.recording = not self.recording
-        self.hud.notification('Recording %s' % ('On' if self.recording else 'Off'))
+        g_hud.notification('Recording %s' % ('On' if self.recording else 'Off'))
 
     def render(self, display):
         if self.surface is not None:
@@ -736,12 +736,12 @@ class CameraManager(object):
             points = np.frombuffer(image.raw_data, dtype=np.dtype('f4'))
             points = np.reshape(points, (int(points.shape[0] / 3), 3))
             lidar_data = np.array(points[:, :2])
-            lidar_data *= min(self.hud.dim) / 100.0
-            lidar_data += (0.5 * self.hud.dim[0], 0.5 * self.hud.dim[1])
+            lidar_data *= min(g_hud.dim) / 100.0
+            lidar_data += (0.5 * g_hud.dim[0], 0.5 * g_hud.dim[1])
             lidar_data = np.fabs(lidar_data)  # pylint: disable=E1111
             lidar_data = lidar_data.astype(np.int32)
             lidar_data = np.reshape(lidar_data, (-1, 2))
-            lidar_img_size = (self.hud.dim[0], self.hud.dim[1], 3)
+            lidar_img_size = (g_hud.dim[0], g_hud.dim[1], 3)
             lidar_img = np.zeros(lidar_img_size)
             lidar_img[tuple(lidar_data.T)] = (255, 255, 255)
             self.surface = pygame.surfarray.make_surface(lidar_img)
@@ -796,7 +796,7 @@ g_client = carla.Client('127.0.0.1', 2000)
 g_client.set_timeout(4.0)
 g_game = PygamePlayer()
 g_hud = HUD(1280, 720)
-g_world = World(g_client.get_world(), g_hud, 'vehicle.*')
+g_world = World(g_client.get_world(), 'vehicle.*')
 g_controller = KeyboardControl()
 
 
