@@ -135,6 +135,7 @@ class World(object):
         self.recording_start = 0
 
     def restart(self):
+        global g_spawn_point
         # Keep same camera config if the camera manager exists.
         cam_index = self.camera_manager.index if self.camera_manager is not None else 0
         cam_pos_index = self.camera_manager.transform_index if self.camera_manager is not None else 0
@@ -145,29 +146,20 @@ class World(object):
         if blueprint.has_attribute('color'):
             color = random.choice(blueprint.get_attribute('color').recommended_values)
             blueprint.set_attribute('color', color)
-        # Spawn the player.
-        spawn_point = Transform()
-        # go straight
-        spawn_point.location.x = 8.90147
-        spawn_point.location.y = 96.35236
-        spawn_point.location.z = 1.20
-        spawn_point.rotation.pitch = 0
-        spawn_point.rotation.roll = 0
-        spawn_point.rotation.yaw = 90
 
         if self.player is not None:
-            # info = "1 -- spawn_point.location = (%.3f, %.3f, %.3f), spawn_point.rotation = (%.3f, %.3f, %.3f)" % \
-            #        (spawn_point.location.x, spawn_point.location.y, spawn_point.location.z,
-            #         spawn_point.rotation.roll, spawn_point.rotation.pitch, spawn_point.rotation.yaw)
+            # info = "1 -- g_spawn_point.location = (%.3f, %.3f, %.3f), g_spawn_point.rotation = (%.3f, %.3f, %.3f)" % \
+            #        (g_spawn_point.location.x, g_spawn_point.location.y, g_spawn_point.location.z,
+            #         g_spawn_point.rotation.roll, g_spawn_point.rotation.pitch, g_spawn_point.rotation.yaw)
             # print(info)
             self.destroy()
-            self.player = self.world.try_spawn_actor(blueprint, spawn_point)
+            self.player = self.world.try_spawn_actor(blueprint, g_spawn_point)
         while self.player is None:
-            # info = "2 -- spawn_point.location = (%.3f, %.3f, %.3f), spawn_point.rotation = (%.3f, %.3f, %.3f)" % \
-            #        (spawn_point.location.x, spawn_point.location.y, spawn_point.location.z,
-            #         spawn_point.rotation.roll, spawn_point.rotation.pitch, spawn_point.rotation.yaw)
+            # info = "2 -- g_spawn_point.location = (%.3f, %.3f, %.3f), g_spawn_point.rotation = (%.3f, %.3f, %.3f)" % \
+            #        (g_spawn_point.location.x, g_spawn_point.location.y, g_spawn_point.location.z,
+            #         g_spawn_point.rotation.roll, g_spawn_point.rotation.pitch, g_spawn_point.rotation.yaw)
             # print(info)
-            self.player = self.world.try_spawn_actor(blueprint, spawn_point)
+            self.player = self.world.try_spawn_actor(blueprint, g_spawn_point)
         # Set up the sensors.
         self.collision_sensor = CollisionSensor(self.player, g_hud)
         self.lane_invasion_sensor = LaneInvasionSensor(self.player, g_hud)
@@ -214,7 +206,7 @@ class World(object):
 
 class KeyboardControl(object):
     def __init__(self):
-        global g_world
+        global g_world, g_spawn_point
         self._autopilot_enabled = True
         g_world.player.set_autopilot(True)
         if isinstance(g_world.player, carla.Vehicle):
@@ -228,16 +220,9 @@ class KeyboardControl(object):
         g_world.player.set_autopilot(True)
 
         self.agent = BasicAgent(g_world.player)
-        spawn_point = Transform()
-        spawn_point.location.x = 8.90147
-        spawn_point.location.y = 96.35236
-        spawn_point.location.z = 1.20
-        spawn_point.rotation.pitch = 0
-        spawn_point.rotation.roll = 0
-        spawn_point.rotation.yaw = 90
-        self.agent.set_destination((spawn_point.location.x,
-                                    spawn_point.location.y,
-                                    spawn_point.location.z))
+        self.agent.set_destination((g_spawn_point.location.x,
+                                    g_spawn_point.location.y,
+                                    g_spawn_point.location.z))
 
 
     def parse_events(self, clock):
@@ -665,7 +650,7 @@ class CameraManager(object):
         self.sensor = None
         self.surface = None
         self._parent = parent_actor
-        g_hud = hud
+        self.hud = hud
         self.recording = False
         self._camera_transforms = [
             carla.Transform(carla.Location(x=-5.5, z=2.8), carla.Rotation(pitch=-15)),
@@ -791,6 +776,10 @@ class PygamePlayer(object):
             g_world.render(self.display)
             pygame.display.flip()
 
+# Location(x, y, z)  Rotation(pitch, yaw, roll)
+spawn_point_straight = Transform(Location(8.90147, 96.35236, 1.20), Rotation(0, 90, 0))
+spawn_point_long = Transform(Location(-341.555, 26.4891, 1.20), Rotation(0, 0, 0))
+g_spawn_point = spawn_point_long
 
 g_client = carla.Client('127.0.0.1', 2000)
 g_client.set_timeout(4.0)

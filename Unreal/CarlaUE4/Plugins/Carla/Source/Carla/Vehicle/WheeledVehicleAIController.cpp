@@ -103,6 +103,10 @@ AWheeledVehicleAIController::AWheeledVehicleAIController(const FObjectInitialize
   UE_LOG(LogCarla, Warning, TEXT("------------ set fixed route in constructor -----------"));
   // TArray<FVector> Locations;
   // SetFixedRoute(Locations);
+  pider.dt = 0.03f;
+  pider.kp = 0.63f;
+  pider.kd = 0.01f;
+  pider.ki = 1.0f;
 }
 
 AWheeledVehicleAIController::~AWheeledVehicleAIController() {}
@@ -349,7 +353,7 @@ FVehicleControl AWheeledVehicleAIController::TickAutopilotController()
   if (Throttle < 0.001f)
   {
     // AutopilotControl.Brake = 1.0f;
-    AutopilotControl.Brake += std::min(fabs(Speed - SpeedLimit)/SpeedLimit, 1.0f);
+    AutopilotControl.Brake = std::min(4 * fabs(Speed - SpeedLimit)/SpeedLimit, 1.0f);
     AutopilotControl.Throttle = 0.0f;
   }
   else
@@ -591,6 +595,7 @@ float AWheeledVehicleAIController::Stop(const float Speed)
 float AWheeledVehicleAIController::Move(const float Speed)
 {
   UE_LOG(LogCarla, Warning, TEXT("********* Move(), speed = %f, SpeedLimit = %f **********"), Speed, SpeedLimit);
+  // return pider.RunStep(SpeedLimit, Speed);
   if (Speed > SpeedLimit)
   {
     // return Stop(Speed);

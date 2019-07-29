@@ -8,6 +8,8 @@
 
 #include <queue>
 
+#include "LongitudinalPIDController.h"
+
 #include "GameFramework/Controller.h"
 
 #include "Traffic/TrafficLightState.h"
@@ -285,4 +287,6 @@ private:
 
   std::queue<FVector> TargetLocations;
   std::queue<float> speeds;
+
+  LongitudinalPIDController pider;
 };
