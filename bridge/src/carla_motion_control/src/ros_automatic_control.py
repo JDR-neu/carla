@@ -86,8 +86,8 @@ def callback(traj):
             for pt in traj.discretized_trajectory_:
                 g_world.player.set_fixed_route_one_point(pt.path_point_.x_, pt.path_point_.y_, 120.0)
                 g_world.player.set_speed_limit(pt.v_, True)
-                time.sleep(0.001)
-                # wiringpi.delayMicroseconds(10)
+                # time.sleep(0.001)
+                wiringpi.delayMicroseconds(50)
 
 
 def listener():
