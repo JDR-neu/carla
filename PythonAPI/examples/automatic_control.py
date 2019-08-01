@@ -69,7 +69,7 @@ except ImportError:
 # -- find carla module ---------------------------------------------------------
 # ==============================================================================
 try:
-    carla_module = glob.glob('/home/goujs/carla/PythonAPI/carla/dist/carla-*%d.%d-%s.egg' % (
+    carla_module = glob.glob('../carla/dist/carla-*%d.%d-%s.egg' % (
         sys.version_info.major,
         sys.version_info.minor,
         'win-amd64' if os.name == 'nt' else 'linux-x86_64'))
@@ -89,8 +89,7 @@ except IndexError:
 import carla
 from carla import ColorConverter as cc
 
-sys.path.append("/home/goujs/carla/PythonAPI/examples")
-sys.path.append("/home/goujs/carla/PythonAPI/carla")
+sys.path.append('../carla')
 
 from agents.navigation.roaming_agent import RoamingAgent
 from agents.navigation.basic_agent import BasicAgent

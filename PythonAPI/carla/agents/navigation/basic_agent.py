@@ -11,14 +11,20 @@ waypoints and avoiding other vehicles.
 The agent also responds to traffic lights. """
 
 import sys
-sys.path.append("/home/goujs/carla/PythonAPI/examples")
-sys.path.append("/home/goujs/carla/PythonAPI/carla")
+sys.path.append("../../../examples")
+sys.path.append("../../../carla")
 import glob
 import os
-sys.path.append(glob.glob('/home/goujs/carla/PythonAPI/carla/dist/carla-*%d.%d-%s.egg' % (
+
+try:
+    carla_module = glob.glob('../../dist/carla-*%d.%d-%s.egg' % (
         sys.version_info.major,
         sys.version_info.minor,
-        'win-amd64' if os.name == 'nt' else 'linux-x86_64'))[0])
+        'win-amd64' if os.name == 'nt' else 'linux-x86_64'))
+    print(carla_module)
+    sys.path.append(carla_module[0])
+except IndexError:
+    pass
 
 import carla
 from agents.navigation.agent import Agent, AgentState

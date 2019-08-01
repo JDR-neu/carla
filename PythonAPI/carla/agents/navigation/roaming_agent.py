@@ -10,8 +10,8 @@
 The agent also responds to traffic lights. """
 
 import sys
-sys.path.append("/home/goujs/carla/PythonAPI/examples")
-sys.path.append("/home/goujs/carla/PythonAPI/carla")
+sys.path.append("../../../examples")
+sys.path.append("../../../carla")
 
 from agents.navigation.agent import Agent, AgentState
 from agents.navigation.local_planner import LocalPlanner

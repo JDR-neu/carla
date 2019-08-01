@@ -334,8 +334,8 @@ class KeyboardControl(object):
             world.player.apply_control(self._control)
 
     def _parse_vehicle_keys(self, world, keys, milliseconds):
-        # self._control.throttle = 1.0 if keys[K_UP] or keys[K_w] else 0.0
-        self._control.throttle = 0.6
+        self._control.throttle = 1.0 if keys[K_UP] or keys[K_w] else 0.0
+        # self._control.throttle = 0.6
         # if keys[K_UP] or keys[K_w]:
         #     self._control.brake = 0
         #     self._control.throttle += 0.001
