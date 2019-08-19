@@ -1,8 +1,0 @@
-prefix=/home/goujs/carla/bridge/src/carla_motion_control/cmake-build-debug/devel
-
-Name: carla_motion_control
-Description: Description of carla_motion_control
-Version: 0.0.0
-Cflags: 
-Libs: -L/home/goujs/carla/bridge/src/carla_motion_control/cmake-build-debug/devel/lib 
-Requires: roscpp rospy message_runtime
