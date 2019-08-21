@@ -68,7 +68,20 @@ sys.path.append("/home/goujs/carla/PythonAPI/examples")
 sys.path.append("/home/goujs/carla/PythonAPI/carla")
 
 from carla import Vector3D, Rotation, Location, Transform
-from agents.navigation.basic_agent import BasicAgent
+
+from agents.tools.xl_getMsg import Message
+from sensor_fusion_msgs.msg import *
+# import environment_model_msgs.msg
+from environment_model_msgs.msg import *
+from hd_map_msgs.msg import *
+from ego_motion_msgs.msg import EgoVehicleMotion
+from sensor_fusion_msgs.msg import ObjFusionData
+from vehicle_msgs.msg import EgoVehicleInfo
+from longitudinal_control_msgs.msg import Controller
+from camera_msgs.msg import ME_SignalList
+from active_safety_controller_msgs.msg import ASC_ControlRequest
+from lateral_control_msgs.msg import LAC_ControlSignal
+
 
 # ==============================================================================
 # -- ROS and SYS_ROS --------------------------------------------
@@ -218,12 +231,6 @@ class KeyboardControl(object):
         g_hud.notification("Press 'H' or '?' for help.", seconds=4.0)
 
         g_world.player.set_autopilot(True)
-
-        self.agent = BasicAgent(g_world.player)
-        self.agent.set_destination((g_spawn_point.location.x,
-                                    g_spawn_point.location.y,
-                                    g_spawn_point.location.z))
-
 
     def parse_events(self, clock):
         global g_world, g_client
@@ -776,6 +783,9 @@ class PygamePlayer(object):
             g_world.render(self.display)
             pygame.display.flip()
 
+            get_msg = Message(g_world.player, g_world.map, g_world.world)
+            carla2ros(get_msg)
+
 # Location(x, y, z)  Rotation(pitch, yaw, roll)
 spawn_point_straight = Transform(Location(8.90147, 96.35236, 1.20), Rotation(0, 90, 0))
 spawn_point_long = Transform(Location(-341.555, 26.4891, 1.20), Rotation(0, 0, 0))
@@ -787,6 +797,69 @@ g_game = PygamePlayer()
 g_hud = HUD(1280, 720)
 g_world = World(g_client.get_world(), 'vehicle.*')
 g_controller = KeyboardControl()
+
+
+def carla2ros(get_msg):
+    rospy.init_node('dqn2carla_rx', anonymous=True)
+    # rospy.Subscriber("GetAction", GetAction, callback)
+    EnvironmentModel_pub = rospy.Publisher('Environment_Model', EnvironmentModel, 
+                                           queue_size=10)
+    EgoVehicleMotion_pub = rospy.Publisher('EgoVehicleMotion', EgoVehicleMotion, tcp_nodelay=True,
+                                           queue_size=10)
+
+    ObjFusionData_pub = rospy.Publisher('ObjFusionData', ObjFusionData, tcp_nodelay=True, queue_size=10)
+    EgoVehicleInfo_pub = rospy.Publisher('EgoVehicleInfo', EgoVehicleInfo, tcp_nodelay=True, queue_size=10)
+    LocController_pub = rospy.Publisher('LocController', Controller, tcp_nodelay=True, queue_size=10)
+    ME_SignalList_pub = rospy.Publisher('ME_SignalList', ME_SignalList, tcp_nodelay=True, queue_size=10)
+    AscController_pub = rospy.Publisher('AscController', ASC_ControlRequest, tcp_nodelay=True, queue_size=10)
+    LacControlSignal_pub = rospy.Publisher('LacControlSignal', LAC_ControlSignal, tcp_nodelay=True,
+                                           queue_size=10)
+    
+    objFusionData = ObjFusionData()
+    egoVehicleInfo = EgoVehicleInfo()
+    locController = Controller()
+    mE_SignalList = ME_SignalList()
+    ascController = ASC_ControlRequest()
+    lacControlSignal = LAC_ControlSignal()
+
+    # while not rospy.is_shutdown():
+    stamp = rospy.Time.now()
+    environmentModel = get_msg[0]
+    egoVehicleMotion = get_msg[1]
+    
+    # print (environmentModel)
+    # print ('######################3')
+
+    environmentModel.header.stamp = stamp
+    EnvironmentModel_pub.publish(environmentModel)
+
+    egoVehicleMotion.header.stamp = stamp
+    EgoVehicleMotion_pub.publish(egoVehicleMotion)
+
+    objFusionData.header.stamp = stamp # ObjFusionData() is large, change to static
+    ObjFusionData_pub.publish(objFusionData)
+
+    egoVehicleInfo.header.stamp = stamp
+    EgoVehicleInfo_pub.publish(egoVehicleInfo)
+
+    locController.header.stamp = stamp
+    LocController_pub.publish(locController)
+
+    mE_SignalList.header.stamp = stamp
+    ME_SignalList_pub.publish(mE_SignalList)
+
+    ascController.header.stamp = stamp
+    AscController_pub.publish(ascController)
+
+    lacControlSignal.header.stamp = stamp
+    LacControlSignal_pub.publish(lacControlSignal)
+
+    # rospy.spin()
+
+
+if __name__ == '__main__':
+
+    main()
 
 
 
