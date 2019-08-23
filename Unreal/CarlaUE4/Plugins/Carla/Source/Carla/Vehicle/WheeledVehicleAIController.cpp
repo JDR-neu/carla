@@ -279,6 +279,23 @@ void AWheeledVehicleAIController::SetFixedRouteAll(const TArray<FVector> &locs) 
 void AWheeledVehicleAIController::SetFixedRouteOnePoint(float x, float y, float z) {
   UE_LOG(LogCarla, Warning, TEXT("********* SetFixedRouteOnePoint() **********"));
   TargetLocations.emplace(FVector(x, y, z));
+  if(TargetLocations.size() > 35 && TargetLocations.size() < 60) {
+    auto temp_route = TargetLocations;
+    int cnt = static_cast<int>(temp_route.size());
+    auto temp_speeds = speeds;
+    for(int i=0; i<cnt; i++) {
+      auto loc = temp_route.front();
+      temp_route.pop();
+      float spe = -111.11;
+      if(!temp_speeds.empty()) {
+        spe = temp_speeds.front();
+        temp_speeds.pop();
+      }  
+      std::cout << "Route " << i << " -- (" << loc.X << ", " << loc.Y << ", " << loc.Z << "), v = " << spe  << " km/h" << std::endl;
+    }
+  } else {
+    std::cout << "TargetLocations.size() is beyond range, = " << TargetLocations.size() << std::endl;
+  }
 }
 
 void AWheeledVehicleAIController::ClearFixedRoute() {
@@ -294,7 +311,7 @@ void AWheeledVehicleAIController::ClearFixedRoute() {
 FVehicleControl AWheeledVehicleAIController::TickAutopilotController()
 {
   // SetSpeedLimit(17.8);
-  UE_LOG(LogCarla, Warning, TEXT("********* TickAutopilotController(), SpeedLimit = %f **********"), SpeedLimit);
+  // UE_LOG(LogCarla, Warning, TEXT("********* TickAutopilotController(), SpeedLimit = %f km/h **********"), SpeedLimit);
 
 
 #if WITH_EDITOR // This happens in simulation mode in editor.
@@ -307,11 +324,13 @@ FVehicleControl AWheeledVehicleAIController::TickAutopilotController()
 
   check(Vehicle != nullptr);
   FVehicleControl AutopilotControl;
-  UE_LOG(LogCarla, Warning, TEXT("8888, TargetLocations.size() = %d"), TargetLocations.size());
 
   if (TargetLocations.empty())
   {
-    UE_LOG(LogCarla, Warning, TEXT("********* path empty, car should stop **********"));
+    if(isOpenLog) {
+      UE_LOG(LogCarla, Warning, TEXT("TargetLocations.size() = %d, path empty, car should stop **********"), TargetLocations.size());  
+    }
+    isOpenLog = false;
     AutopilotControl.Brake = 1.0f;
     AutopilotControl.Throttle = 0.0f;
     AutopilotControl.Steer = 0.0f;
@@ -333,6 +352,11 @@ FVehicleControl AWheeledVehicleAIController::TickAutopilotController()
 
   // Speed in km/h. cm/s ===> km/h
   const auto Speed = Vehicle->GetVehicleForwardSpeed() * 0.036f;
+  if(Speed > 1.0f) {
+      isOpenLog = true;
+    } else {
+      isOpenLog = false;
+    }
 
   float Throttle;
   if (TrafficLightState != ETrafficLightState::Green)
@@ -368,7 +392,7 @@ FVehicleControl AWheeledVehicleAIController::TickAutopilotController()
 
 float AWheeledVehicleAIController::GoToNextTargetLocation(FVector &Direction)
 {
-  UE_LOG(LogCarla, Warning, TEXT("********* GoToNextTargetLocation() **********"));
+  // UE_LOG(LogCarla, Warning, TEXT("********* GoToNextTargetLocation() **********"));
 
   // Get middle point between the two front wheels.
   const auto CurrentLocation = [&]() {
@@ -382,17 +406,18 @@ float AWheeledVehicleAIController::GoToNextTargetLocation(FVector &Direction)
 
     return FVector{Result.X, Result.Y, CurrentLocation.Z};
   } ();
-
-  UE_LOG(LogCarla, Warning, TEXT("------current location = (%f, %f, %f)"), CurrentLocation.X, CurrentLocation.Y, CurrentLocation.Z);
-  UE_LOG(LogCarla, Warning, TEXT("------target location = (%f, %f, %f)"), Target.X, Target.Y, Target.Z);
-  UE_LOG(LogCarla, Warning, TEXT("555, TargetLocations.size() = %d"), TargetLocations.size());
-
+  if(isOpenLog) {
+    UE_LOG(LogCarla, Warning, TEXT("GoToNextTargetLocation(), current location = (%f, %f, %f)"), CurrentLocation.X, CurrentLocation.Y, CurrentLocation.Z);
+    UE_LOG(LogCarla, Warning, TEXT("GoToNextTargetLocation(), target location = (%f, %f, %f)"), Target.X, Target.Y, Target.Z);
+    UE_LOG(LogCarla, Warning, TEXT("555, TargetLocations.size() = %d"), TargetLocations.size());
+  }
+  
   if (Target.Equals(CurrentLocation, 150.0f))
   {
     TargetLocations.pop();
     speeds.pop();
     SpeedLimit = speeds.front();
-    UE_LOG(LogCarla, Warning, TEXT("------GoToNextTargetLocation(), new speed limit = %f -----"), SpeedLimit);
+    UE_LOG(LogCarla, Warning, TEXT("------GoToNextTargetLocation(), new speed limit = %f km/h -----"), SpeedLimit);
 
     UE_LOG(LogCarla, Warning, TEXT("666, TargetLocations.size() = %d"), TargetLocations.size());
 
@@ -588,13 +613,15 @@ float AWheeledVehicleAIController::CalcStreeringValue(FVector &direction)
 
 float AWheeledVehicleAIController::Stop(const float Speed)
 {
-  UE_LOG(LogCarla, Warning, TEXT("********* Stop(), speed = %f **********"), Speed);
+  UE_LOG(LogCarla, Warning, TEXT("********* Stop(), speed = %f km/h **********"), Speed);
   return (Speed >= 1.0f ? -Speed / SpeedLimit : 0.0f);
 }
 
 float AWheeledVehicleAIController::Move(const float Speed)
 {
-  UE_LOG(LogCarla, Warning, TEXT("********* Move(), speed = %f, SpeedLimit = %f **********"), Speed, SpeedLimit);
+  if(isOpenLog) {
+    UE_LOG(LogCarla, Warning, TEXT("********* Move(), speed = %f km/h, SpeedLimit = %f km/h **********"), Speed, SpeedLimit);
+  }
   // return pider.RunStep(SpeedLimit, Speed);
   if (Speed > SpeedLimit)
   {

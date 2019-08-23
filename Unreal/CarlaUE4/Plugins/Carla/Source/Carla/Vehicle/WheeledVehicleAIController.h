@@ -176,17 +176,20 @@ public:
   UFUNCTION(Category = "Wheeled Vehicle Controller", BlueprintCallable)
   void SetSpeedLimit(float InSpeedLimit, bool outside = false)
   {
-    UE_LOG(LogCarla, Warning, TEXT("********* before SetSpeedLimit(), SpeedLimit = %f **********"), SpeedLimit);
+    if(isOpenLog) {
+      UE_LOG(LogCarla, Warning, TEXT("********* before SetSpeedLimit(), SpeedLimit = %f km/h **********"), SpeedLimit);
+    }
     if(outside) {
-      UE_LOG(LogCarla, Warning, TEXT("********* SetSpeedLimit() from outside, InSpeedLimit = %f **********"), InSpeedLimit);
+      UE_LOG(LogCarla, Warning, TEXT("********* SetSpeedLimit() from outside, InSpeedLimit = %f km/h **********"), InSpeedLimit);
       speeds.emplace(InSpeedLimit);
       SpeedLimit = speeds.front();
       // SpeedLimit = InSpeedLimit;
-
     } else {
-      UE_LOG(LogCarla, Warning, TEXT("********* SetSpeedLimit() from inside, InSpeedLimit = %f **********"), InSpeedLimit);
+      // UE_LOG(LogCarla, Warning, TEXT("********* SetSpeedLimit() from inside, InSpeedLimit = %f km/h **********"), InSpeedLimit);
+    }    
+    if(isOpenLog) {
+      UE_LOG(LogCarla, Warning, TEXT("********* after SetSpeedLimit(), SpeedLimit = %f km/h **********"), SpeedLimit);
     }
-    UE_LOG(LogCarla, Warning, TEXT("********* after SetSpeedLimit(), SpeedLimit = %f **********"), SpeedLimit);
   }
 
   /// Get traffic light state currently affecting this vehicle.
@@ -274,7 +277,7 @@ private:
   bool bControlIsSticky = true;
 
   UPROPERTY(VisibleAnywhere)
-  float SpeedLimit = 30.0f;
+  float SpeedLimit = 0.0f;
 
   UPROPERTY(VisibleAnywhere)
   ETrafficLightState TrafficLightState = ETrafficLightState::Green;
@@ -289,4 +292,6 @@ private:
   std::queue<float> speeds;
 
   LongitudinalPIDController pider;
+
+  bool isOpenLog = false;
 };
