@@ -291,7 +291,6 @@ private:
   std::queue<FVector> TargetLocations;
   std::queue<float> speeds;
 
-  LongitudinalPIDController pider;
-
   bool isOpenLog = false;
+  FVehicleControl last_AutopilotControl;
 };

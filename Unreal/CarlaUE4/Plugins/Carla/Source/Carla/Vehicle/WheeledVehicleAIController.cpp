@@ -91,7 +91,11 @@ static void ClearQueue(std::queue<T> &Queue)
 AWheeledVehicleAIController::AWheeledVehicleAIController(const FObjectInitializer &ObjectInitializer)
   : Super(ObjectInitializer)
 {
-  UE_LOG(LogCarla, Warning, TEXT("********* AWheeledVehicleAIController() **********"));
+  // UE_LOG(LogCarla, Warning, TEXT("********* AWheeledVehicleAIController() **********"));
+
+  last_AutopilotControl.Brake = 0.0f;
+  last_AutopilotControl.Throttle = 0.0f;
+  last_AutopilotControl.Steer = 0.0f;
 
   RandomEngine = CreateDefaultSubobject<URandomEngine>(TEXT("RandomEngine"));
 
@@ -100,13 +104,9 @@ AWheeledVehicleAIController::AWheeledVehicleAIController(const FObjectInitialize
   PrimaryActorTick.bCanEverTick = true;
   PrimaryActorTick.TickGroup = TG_PrePhysics;
 
-  UE_LOG(LogCarla, Warning, TEXT("------------ set fixed route in constructor -----------"));
+  // UE_LOG(LogCarla, Warning, TEXT("------------ set fixed route in constructor -----------"));
   // TArray<FVector> Locations;
   // SetFixedRoute(Locations);
-  pider.dt = 0.03f;
-  pider.kp = 0.63f;
-  pider.kd = 0.01f;
-  pider.ki = 1.0f;
 }
 
 AWheeledVehicleAIController::~AWheeledVehicleAIController() {}
@@ -279,6 +279,15 @@ void AWheeledVehicleAIController::SetFixedRouteAll(const TArray<FVector> &locs) 
 void AWheeledVehicleAIController::SetFixedRouteOnePoint(float x, float y, float z) {
   UE_LOG(LogCarla, Warning, TEXT("********* SetFixedRouteOnePoint() **********"));
   TargetLocations.emplace(FVector(x, y, z));
+  /*
+  const auto CurrentLocation = [&]() {
+    const auto &Wheels = Vehicle->GetVehicleMovementComponent()->Wheels;
+    check((Wheels.Num() > 1) && (Wheels[0u] != nullptr) && (Wheels[1u] != nullptr));
+    return (Wheels[0u]->Location + Wheels[1u]->Location) / 2.0f;
+  } ();
+  std::cout << "CurrentLocation = (" << CurrentLocation.X << ", " << CurrentLocation.Y << ")"<< std::endl;
+  std::cout << "SetRoutePoint   = (" << x << ", " << y << ")"<< std::endl;
+
   if(TargetLocations.size() > 35 && TargetLocations.size() < 60) {
     auto temp_route = TargetLocations;
     int cnt = static_cast<int>(temp_route.size());
@@ -295,7 +304,7 @@ void AWheeledVehicleAIController::SetFixedRouteOnePoint(float x, float y, float 
     }
   } else {
     std::cout << "TargetLocations.size() is beyond range, = " << TargetLocations.size() << std::endl;
-  }
+  }*/
 }
 
 void AWheeledVehicleAIController::ClearFixedRoute() {
@@ -331,10 +340,10 @@ FVehicleControl AWheeledVehicleAIController::TickAutopilotController()
       UE_LOG(LogCarla, Warning, TEXT("TargetLocations.size() = %d, path empty, car should stop **********"), TargetLocations.size());  
     }
     isOpenLog = false;
-    AutopilotControl.Brake = 1.0f;
-    AutopilotControl.Throttle = 0.0f;
-    AutopilotControl.Steer = 0.0f;
-    return AutopilotControl;
+    // AutopilotControl.Brake = 0.0f;
+    // AutopilotControl.Throttle = 0.0f;
+    // AutopilotControl.Steer = 0.0f;
+    return last_AutopilotControl;
   }
 
   FVector Direction;
@@ -387,6 +396,7 @@ FVehicleControl AWheeledVehicleAIController::TickAutopilotController()
   }
   AutopilotControl.Steer = Steering;
 
+  last_AutopilotControl = AutopilotControl;
   return AutopilotControl;
 }
 
@@ -622,7 +632,6 @@ float AWheeledVehicleAIController::Move(const float Speed)
   if(isOpenLog) {
     UE_LOG(LogCarla, Warning, TEXT("********* Move(), speed = %f km/h, SpeedLimit = %f km/h **********"), Speed, SpeedLimit);
   }
-  // return pider.RunStep(SpeedLimit, Speed);
   if (Speed > SpeedLimit)
   {
     // return Stop(Speed);

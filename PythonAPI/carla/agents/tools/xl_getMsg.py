@@ -383,14 +383,10 @@ def Message(player,map,world):
     egoVehicleMotion.ayvRef_sw = int(player_a2[1] * 2048)
     egoVehicleMotion.psiDtOpt_sw = int( player_angularV2[1] * 16384)
 
-<<<<<<< HEAD
     egoVehicleMotion.carla_pos_x = player_loc[0]
     egoVehicleMotion.carla_pos_y = player_loc[1]
     egoVehicleMotion.carla_heading = yaw_player
 
-
-=======
->>>>>>> 6eb8149744fc6757adeae057cad79817009b19db
     return environmentModel, egoVehicleMotion
     # finally:
     #     print('\ndestroying %d actors' % len(actors))
