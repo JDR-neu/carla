@@ -131,9 +131,9 @@ def Message(player,map,world):
                 next_waypoints = []
                 next_waypoints.append(wayPoints[i])
 
-                for _ in range(25):
+                for _ in range(100):
                     tmpwp = next_waypoints[-1]
-                    nextwps = list(tmpwp.next(4))
+                    nextwps = list(tmpwp.next(1))
                     if len(nextwps) > 0:
                         nextwp = nextwps[0]
                         next_waypoints.append(nextwp)   

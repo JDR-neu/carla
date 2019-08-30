@@ -236,7 +236,8 @@ void AWheeledVehicleAIController::SetFixedRoute(
     const TArray<FVector> &Locations,
     const bool bOverwriteCurrent)
 {
-  UE_LOG(LogCarla, Warning, TEXT("********* SetFixedRoute() **********"));
+  /*
+  // UE_LOG(LogCarla, Warning, TEXT("********* SetFixedRoute() **********"));
   // if (bOverwriteCurrent)
   // {
   //   ClearQueue(TargetLocations);
@@ -265,8 +266,8 @@ void AWheeledVehicleAIController::SetFixedRoute(
   // FVector loc(31048.72, -11297.29, 120);
   // TargetLocations.emplace(loc);
   UE_LOG(LogCarla, Warning, TEXT("********* SetFixedRoute() Done!!! **********"));
-  UE_LOG(LogCarla, Warning, TEXT("999, TargetLocations.size() = %d"), TargetLocations.size());
-
+  UE_LOG(LogCarla, Warning, TEXT("999, TargetLocations.size() = %d"), static_cast<int>(TargetLocations.size()));
+*/
 }
 
 void AWheeledVehicleAIController::SetFixedRouteAll(const TArray<FVector> &locs) {
@@ -278,7 +279,9 @@ void AWheeledVehicleAIController::SetFixedRouteAll(const TArray<FVector> &locs) 
 
 void AWheeledVehicleAIController::SetFixedRouteOnePoint(float x, float y, float z) {
   UE_LOG(LogCarla, Warning, TEXT("********* SetFixedRouteOnePoint() **********"));
-  TargetLocations.emplace(FVector(x, y, z));
+  TargetLocations.emplace(FVector(x, y, 0));
+  speeds.emplace(z);
+  SpeedLimit = speeds.front();
   /*
   const auto CurrentLocation = [&]() {
     const auto &Wheels = Vehicle->GetVehicleMovementComponent()->Wheels;
@@ -337,7 +340,8 @@ FVehicleControl AWheeledVehicleAIController::TickAutopilotController()
   if (TargetLocations.empty())
   {
     if(isOpenLog) {
-      UE_LOG(LogCarla, Warning, TEXT("TargetLocations.size() = %d, path empty, car should stop **********"), TargetLocations.size());  
+      UE_LOG(LogCarla, Warning, TEXT("TargetLocations.size() = %d, path empty, car should stop **********"),
+             static_cast<int>(TargetLocations.size()));  
     }
     isOpenLog = false;
     // AutopilotControl.Brake = 0.0f;
@@ -368,20 +372,21 @@ FVehicleControl AWheeledVehicleAIController::TickAutopilotController()
     }
 
   float Throttle;
-  if (TrafficLightState != ETrafficLightState::Green)
-  {
-    Vehicle->SetAIVehicleState(ECarlaWheeledVehicleState::WaitingForRedLight);
-    Throttle = Stop(Speed);
-  }
-  else if (IsThereAnObstacleAhead(*Vehicle, Speed, Direction))
-  {
-    Vehicle->SetAIVehicleState(ECarlaWheeledVehicleState::ObstacleAhead);
-    Throttle = Stop(Speed);
-  }
-  else
-  {
-    Throttle = Move(Speed);
-  }
+  // if (TrafficLightState != ETrafficLightState::Green)
+  // {
+  //   Vehicle->SetAIVehicleState(ECarlaWheeledVehicleState::WaitingForRedLight);
+  //   Throttle = Stop(Speed);
+  // }
+  // else if (IsThereAnObstacleAhead(*Vehicle, Speed, Direction))
+  // {
+  //   Vehicle->SetAIVehicleState(ECarlaWheeledVehicleState::ObstacleAhead);
+  //   Throttle = Stop(Speed);
+  // }
+  // else
+  // {
+  //   Throttle = Move(Speed);
+  // }
+  Throttle = Move(Speed);
 
   if (Throttle < 0.001f)
   {
@@ -419,17 +424,31 @@ float AWheeledVehicleAIController::GoToNextTargetLocation(FVector &Direction)
   if(isOpenLog) {
     UE_LOG(LogCarla, Warning, TEXT("GoToNextTargetLocation(), current location = (%f, %f, %f)"), CurrentLocation.X, CurrentLocation.Y, CurrentLocation.Z);
     UE_LOG(LogCarla, Warning, TEXT("GoToNextTargetLocation(), target location = (%f, %f, %f)"), Target.X, Target.Y, Target.Z);
-    UE_LOG(LogCarla, Warning, TEXT("555, TargetLocations.size() = %d"), TargetLocations.size());
+    UE_LOG(LogCarla, Warning, TEXT("555, TargetLocations.size() = %d"), static_cast<int>(TargetLocations.size()));
   }
   
   if (Target.Equals(CurrentLocation, 150.0f))
   {
+    if(TargetLocations.size() != speeds.size()) {
+      UE_LOG(LogCarla, Error, TEXT("TargetLocations.size() %d != speeds.size() %d"),
+             static_cast<int>(TargetLocations.size()), static_cast<int>(speeds.size()));
+      ClearFixedRoute();
+      return RoadMap != nullptr ? CalcStreeringValue(Direction) : 0.0f;
+    }
+    if(TargetLocations.empty() && speeds.empty()) {
+      UE_LOG(LogCarla, Error, TEXT("TargetLocations and speeds are empty"));
+      return RoadMap != nullptr ? CalcStreeringValue(Direction) : 0.0f;
+    }
     TargetLocations.pop();
     speeds.pop();
+    if(TargetLocations.empty() && speeds.empty()) {
+      UE_LOG(LogCarla, Error, TEXT("TargetLocations and speeds are empty, SpeedLimit don't change"));
+      return RoadMap != nullptr ? CalcStreeringValue(Direction) : 0.0f;
+    }
     SpeedLimit = speeds.front();
     UE_LOG(LogCarla, Warning, TEXT("------GoToNextTargetLocation(), new speed limit = %f km/h -----"), SpeedLimit);
 
-    UE_LOG(LogCarla, Warning, TEXT("666, TargetLocations.size() = %d"), TargetLocations.size());
+    UE_LOG(LogCarla, Warning, TEXT("666, TargetLocations.size() = %d"), static_cast<int>(TargetLocations.size()));
 
     if (!TargetLocations.empty())
     {
