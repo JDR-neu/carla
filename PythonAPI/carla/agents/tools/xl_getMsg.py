@@ -309,7 +309,9 @@ def Message(player,map,world):
                             environmentModel.Lanes[i].ObjectsinLane_ast[j].axv_sw = int(axv * 2048)
                             environmentModel.Lanes[i].ObjectsinLane_ast[j].ayv_sw = int(ayv * 2048)
 
+                            # Todo: add object bounding box size
                             environmentModel.Lanes[i].ObjectsinLane_ast[j].length_uw = int(4.0 * 128)
+                            environmentModel.Lanes[i].ObjectsinLane_ast[j].width_uw = int(2.0 * 128)
                             environmentModel.Lanes[i].ObjectsinLane_ast[j].headAngle_f = headAngle
                             
                             # print("id is {}".format(obj_sorted[j][0]), "type is ", type(environmentModel.Lanes[i].ObjectNum_ub))
