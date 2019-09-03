@@ -344,10 +344,11 @@ FVehicleControl AWheeledVehicleAIController::TickAutopilotController()
              static_cast<int>(TargetLocations.size()));  
     }
     isOpenLog = false;
-    // AutopilotControl.Brake = 0.0f;
-    // AutopilotControl.Throttle = 0.0f;
-    // AutopilotControl.Steer = 0.0f;
-    return last_AutopilotControl;
+    AutopilotControl.Brake = 1.0f;
+    AutopilotControl.Throttle = 0.0f;
+    AutopilotControl.Steer = 0.0f;
+    // return last_AutopilotControl;
+    return AutopilotControl;
   }
 
   FVector Direction;
