@@ -8,12 +8,15 @@
 
 #include <queue>
 
+#include "LongitudinalPIDController.h"
+
 #include "GameFramework/Controller.h"
 
 #include "Traffic/TrafficLightState.h"
 #include "Vehicle/VehicleControl.h"
 
 #include "WheeledVehicleAIController.generated.h"
+
 
 class ACarlaWheeledVehicle;
 class URandomEngine;
@@ -173,7 +176,20 @@ public:
   UFUNCTION(Category = "Wheeled Vehicle Controller", BlueprintCallable)
   void SetSpeedLimit(float InSpeedLimit, bool outside = false)
   {
-    SpeedLimit = InSpeedLimit;
+    if(isOpenLog) {
+      UE_LOG(LogCarla, Warning, TEXT("********* before SetSpeedLimit(), SpeedLimit = %f km/h **********"), SpeedLimit);
+    }
+    if(outside) {
+      UE_LOG(LogCarla, Warning, TEXT("********* SetSpeedLimit() from outside, InSpeedLimit = %f km/h **********"), InSpeedLimit);
+      speeds.emplace(InSpeedLimit);
+      SpeedLimit = speeds.front();
+      // SpeedLimit = InSpeedLimit;
+    } else {
+      // UE_LOG(LogCarla, Warning, TEXT("********* SetSpeedLimit() from inside, InSpeedLimit = %f km/h **********"), InSpeedLimit);
+    }    
+    if(isOpenLog) {
+      UE_LOG(LogCarla, Warning, TEXT("********* after SetSpeedLimit(), SpeedLimit = %f km/h **********"), SpeedLimit);
+    }
   }
 
   /// Get traffic light state currently affecting this vehicle.
@@ -225,12 +241,8 @@ private:
 
   FVehicleControl TickAutopilotController();
 
-  FVehicleControl TickAutopilotControllerForPlan();
-
   /// Returns steering value.
   float GoToNextTargetLocation(FVector &Direction);
-
-  float GoToNextTargetLocationForPlan(FVector &Direction);
 
   /// Returns steering value.
   float CalcStreeringValue(FVector &Direction);
@@ -265,7 +277,7 @@ private:
   bool bControlIsSticky = true;
 
   UPROPERTY(VisibleAnywhere)
-  float SpeedLimit = 30.0f;
+  float SpeedLimit = 0.0f;
 
   UPROPERTY(VisibleAnywhere)
   ETrafficLightState TrafficLightState = ETrafficLightState::Green;
@@ -277,11 +289,8 @@ private:
   ATrafficLightBase *TrafficLight;
 
   std::queue<FVector> TargetLocations;
+  std::queue<float> speeds;
 
-  std::queue<FVector> TargetLocationsForPlan;
-  std::queue<float> SpeedLimitsForPlan;
-  bool isPlan;
-  bool isOpenLog;
+  bool isOpenLog = false;
   FVehicleControl last_AutopilotControl;
-
 };
