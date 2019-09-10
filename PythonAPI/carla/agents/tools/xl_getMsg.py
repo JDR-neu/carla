@@ -123,7 +123,7 @@ def Message(player,map,world):
             if wayPoints[i] == None:
                 environmentModel.Lanes[i].IsValid_b = False
                 i = i+1 
-                print("+++++++++++++++++++lane is not valid++++++++++++++++++++++++++")           
+                # print("+++++++++++++++++++lane is not valid++++++++++++++++++++++++++")           
                 continue
             else:
                 environmentModel.Lanes[i].IsValid_b = True    

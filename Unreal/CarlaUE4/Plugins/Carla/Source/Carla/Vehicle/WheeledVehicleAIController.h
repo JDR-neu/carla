@@ -241,6 +241,8 @@ private:
   /// Returns throttle value.
   float Move(float Speed);
 
+  float MoveForPlan(float Speed);
+
   /// @}
   // ===========================================================================
   // -- Member variables -------------------------------------------------------

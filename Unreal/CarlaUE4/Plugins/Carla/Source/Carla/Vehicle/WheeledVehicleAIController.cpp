@@ -206,7 +206,7 @@ void AWheeledVehicleAIController::SetFixedRoute(
     const TArray<FVector> &Locations,
     const bool bOverwriteCurrent)
 {
-  UE_LOG(LogCarla, Warning, TEXT("********* SetFixedRoute() **********"));
+  // UE_LOG(LogCarla, Warning, TEXT("********* SetFixedRoute() **********"));
   isPlan = false;
   if (bOverwriteCurrent)
   {
@@ -228,7 +228,7 @@ void AWheeledVehicleAIController::SetFixedRouteAll(const TArray<FVector> &locs) 
 
 
 void AWheeledVehicleAIController::SetFixedRouteOnePoint(float x, float y, float z) {
-  UE_LOG(LogCarla, Warning, TEXT("********* SetFixedRouteOnePoint() **********"));
+  // UE_LOG(LogCarla, Warning, TEXT("********* SetFixedRouteOnePoint() **********"));
   isPlan = true;
   TargetLocationsForPlan.emplace(FVector(x, y, 0));
   SpeedLimitsForPlan.emplace(z);
@@ -376,7 +376,7 @@ FVehicleControl AWheeledVehicleAIController::TickAutopilotControllerForPlan()
       isOpenLog = false;
     }
 
-  float Throttle = Move(Speed);
+  float Throttle = MoveForPlan(Speed);
 
   if (Throttle < 0.001f)
   {
@@ -480,9 +480,9 @@ float AWheeledVehicleAIController::GoToNextTargetLocationForPlan(FVector &Direct
     return FVector{Result.X, Result.Y, CurrentLocation.Z};
   } ();
   if(isOpenLog) {
-    UE_LOG(LogCarla, Warning, TEXT("GoToNextTargetLocationForPlan(), current location = (%f, %f, %f)"), CurrentLocation.X, CurrentLocation.Y, CurrentLocation.Z);
-    UE_LOG(LogCarla, Warning, TEXT("GoToNextTargetLocationForPlan(), target location = (%f, %f, %f)"), Target.X, Target.Y, Target.Z);
-    UE_LOG(LogCarla, Warning, TEXT("555, TargetLocationsForPlan.size() = %d"), static_cast<int>(TargetLocationsForPlan.size()));
+    // UE_LOG(LogCarla, Warning, TEXT("GoToNextTargetLocationForPlan(), current location = (%f, %f, %f)"), CurrentLocation.X, CurrentLocation.Y, CurrentLocation.Z);
+    // UE_LOG(LogCarla, Warning, TEXT("GoToNextTargetLocationForPlan(), target location = (%f, %f, %f)"), Target.X, Target.Y, Target.Z);
+    // UE_LOG(LogCarla, Warning, TEXT("555, TargetLocationsForPlan.size() = %d"), static_cast<int>(TargetLocationsForPlan.size()));
   }
   
   if (Target.Equals(CurrentLocation, 150.0f))
@@ -505,7 +505,7 @@ float AWheeledVehicleAIController::GoToNextTargetLocationForPlan(FVector &Direct
     }
     SpeedLimit = SpeedLimitsForPlan.front();
     UE_LOG(LogCarla, Warning, TEXT("------GoToNextTargetLocationForPlan(), new speed limit = %f km/h -----"), SpeedLimit);
-    UE_LOG(LogCarla, Warning, TEXT("666, TargetLocationsForPlan.size() = %d"), static_cast<int>(TargetLocationsForPlan.size()));
+    // UE_LOG(LogCarla, Warning, TEXT("666, TargetLocationsForPlan.size() = %d"), static_cast<int>(TargetLocationsForPlan.size()));
 
     if (!TargetLocationsForPlan.empty())
     {
@@ -708,6 +708,25 @@ float AWheeledVehicleAIController::Move(const float Speed)
   else if (Speed >= SpeedLimit - 10.0f)
   {
     return 0.5f;
+  }
+  else
+  {
+    return 1.0f;
+  }
+}
+
+float AWheeledVehicleAIController::MoveForPlan(const float Speed)
+{
+  if(isOpenLog) {
+    UE_LOG(LogCarla, Warning, TEXT("********* MoveForPlan(), speed = %f km/h, SpeedLimit = %f km/h **********"), Speed, SpeedLimit);
+  }
+  if (Speed > SpeedLimit)
+  {    
+    return 0.0f;
+  }  
+  else if (Speed >= SpeedLimit * 0.95f)
+  {
+    return 0.3 + fabs(Speed - SpeedLimit)/SpeedLimit; 
   }
   else
   {
