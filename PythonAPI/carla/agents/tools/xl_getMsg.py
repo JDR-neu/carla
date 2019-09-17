@@ -32,6 +32,10 @@ def Message(player,map,world):
     if vehicle_list is not None:
         
         for target_vehicle in vehicle_list:
+            #init left and right waypoint
+            left_waypoint = None
+            right_waypoint = None
+
             # do not account for the ego vehicle
             if target_vehicle.id == player.id:
                 continue
@@ -54,13 +58,15 @@ def Message(player,map,world):
             else:
                 egoLaneIDToUse = ego_vehicle_waypoint.lane_id
             
-            if ego_vehicle_waypoint.get_left_lane() != None:
+            if ego_vehicle_waypoint.get_left_lane() != None and ego_vehicle_waypoint.lane_change & carla.LaneChange.Left :
+                left_waypoint = ego_vehicle_waypoint.get_left_lane()
                 if ego_vehicle_waypoint.get_left_lane().is_intersection:
                     egoLeftLaneIDToUse = abs(ego_vehicle_waypoint.get_left_lane().lane_id)
                 else:
                     egoLeftLaneIDToUse = ego_vehicle_waypoint.get_left_lane().lane_id
             
-            if ego_vehicle_waypoint.get_right_lane() != None:
+            if ego_vehicle_waypoint.get_right_lane() != None and ego_vehicle_waypoint.lane_change & carla.LaneChange.Right:
+                right_waypoint = ego_vehicle_waypoint.get_right_lane()
                 if ego_vehicle_waypoint.get_right_lane().is_intersection:
                     egoRightLaneIDToUse = abs(ego_vehicle_waypoint.get_right_lane().lane_id)
                 else:
@@ -71,9 +77,9 @@ def Message(player,map,world):
             else:         
                 if targetLaneIDToUse == egoLaneIDToUse:     
                     obj_in_ego_lane.append(target_vehicle)
-                elif ego_vehicle_waypoint.get_left_lane() != None and targetLaneIDToUse == egoLeftLaneIDToUse:                  
+                elif ego_vehicle_waypoint.get_left_lane() != None and ego_vehicle_waypoint.lane_change & carla.LaneChange.Left and targetLaneIDToUse == egoLeftLaneIDToUse:                  
                     obj_in_left_lane.append(target_vehicle)
-                elif ego_vehicle_waypoint.get_right_lane() != None and targetLaneIDToUse == egoRightLaneIDToUse:
+                elif ego_vehicle_waypoint.get_right_lane() != None and ego_vehicle_waypoint.lane_change & carla.LaneChange.Right and targetLaneIDToUse == egoRightLaneIDToUse:
                     obj_in_right_lane.append(target_vehicle)
                 # else:
                 #     print("don't care about the cars in other lanes")
@@ -96,7 +102,7 @@ def Message(player,map,world):
     environmentModel = EnvironmentModel()
     egoVehicleMotion = EgoVehicleMotion()   
 
-    wayPoints = [ego_vehicle_waypoint.get_left_lane(),ego_vehicle_waypoint,ego_vehicle_waypoint.get_right_lane()]
+    wayPoints = [left_waypoint,ego_vehicle_waypoint,right_waypoint]
 
     i = 0
     for laneIndex in range(3):
@@ -120,7 +126,7 @@ def Message(player,map,world):
         # print("layer1 is running!!!!!!!!!!!!")
 
         if laneIndex == i:
-            if wayPoints[i] == None:
+            if wayPoints[i] == None :
                 environmentModel.Lanes[i].IsValid_b = False
                 i = i+1 
                 # print("+++++++++++++++++++lane is not valid++++++++++++++++++++++++++")           
@@ -131,13 +137,15 @@ def Message(player,map,world):
                 next_waypoints = []
                 next_waypoints.append(wayPoints[i])
 
-                for _ in range(100):
+                for _ in range(25):
                     tmpwp = next_waypoints[-1]
-                    nextwps = list(tmpwp.next(1))
+                    nextwps = list(tmpwp.next(4))
                     if len(nextwps) > 0:
                         nextwp = nextwps[0]
                         next_waypoints.append(nextwp)   
                     else: continue
+                for temp_wp in next_waypoints:
+                    world.debug.draw_point(temp_wp.transform.location)
                 # print('+++++++++++++lane ',laneIndex, 'has ', len(next_waypoints), 'waypoints++++++++++')
                 if len(next_waypoints) > 0:    
                     # print("layer2 is running!!!!!!!!!!!!")   
@@ -309,9 +317,8 @@ def Message(player,map,world):
                             environmentModel.Lanes[i].ObjectsinLane_ast[j].axv_sw = int(axv * 2048)
                             environmentModel.Lanes[i].ObjectsinLane_ast[j].ayv_sw = int(ayv * 2048)
 
-                            # Todo: add object bounding box size
                             environmentModel.Lanes[i].ObjectsinLane_ast[j].length_uw = int(4.0 * 128)
-                            environmentModel.Lanes[i].ObjectsinLane_ast[j].width_uw = int(2.0 * 128)
+			    environmentModel.Lanes[i].ObjectsinLane_ast[j].width_uw = int(2.0 * 128)
                             environmentModel.Lanes[i].ObjectsinLane_ast[j].headAngle_f = headAngle
                             
                             # print("id is {}".format(obj_sorted[j][0]), "type is ", type(environmentModel.Lanes[i].ObjectNum_ub))
