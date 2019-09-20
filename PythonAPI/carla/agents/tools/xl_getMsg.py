@@ -6,6 +6,7 @@ import math
 import transforms3d
 import sys
 import os
+import rospy
 from environment_model_msgs.msg import *
 from ego_motion_msgs.msg import EgoVehicleMotion
 from sensor_fusion_msgs.msg import ObjFusionInfo
@@ -33,8 +34,8 @@ def Message(player,map,world):
         
         for target_vehicle in vehicle_list:
             #init left and right waypoint
-            left_waypoint = None
-            right_waypoint = None
+            # left_waypoint = None
+            # right_waypoint = None
 
             # do not account for the ego vehicle
             if target_vehicle.id == player.id:
@@ -57,16 +58,16 @@ def Message(player,map,world):
                 egoLaneIDToUse = abs(ego_vehicle_waypoint.lane_id)
             else:
                 egoLaneIDToUse = ego_vehicle_waypoint.lane_id
-            
+
             if ego_vehicle_waypoint.get_left_lane() != None and ego_vehicle_waypoint.lane_change & carla.LaneChange.Left :
-                left_waypoint = ego_vehicle_waypoint.get_left_lane()
+                # left_waypoint = ego_vehicle_waypoint.get_left_lane()
                 if ego_vehicle_waypoint.get_left_lane().is_intersection:
                     egoLeftLaneIDToUse = abs(ego_vehicle_waypoint.get_left_lane().lane_id)
                 else:
                     egoLeftLaneIDToUse = ego_vehicle_waypoint.get_left_lane().lane_id
             
             if ego_vehicle_waypoint.get_right_lane() != None and ego_vehicle_waypoint.lane_change & carla.LaneChange.Right:
-                right_waypoint = ego_vehicle_waypoint.get_right_lane()
+                # right_waypoint = ego_vehicle_waypoint.get_right_lane()
                 if ego_vehicle_waypoint.get_right_lane().is_intersection:
                     egoRightLaneIDToUse = abs(ego_vehicle_waypoint.get_right_lane().lane_id)
                 else:
@@ -74,7 +75,7 @@ def Message(player,map,world):
                 
             if targetLaneIDToUse * egoLaneIDToUse < 0: 
                 continue
-            else:         
+            else:
                 if targetLaneIDToUse == egoLaneIDToUse:     
                     obj_in_ego_lane.append(target_vehicle)
                 elif ego_vehicle_waypoint.get_left_lane() != None and ego_vehicle_waypoint.lane_change & carla.LaneChange.Left and targetLaneIDToUse == egoLeftLaneIDToUse:                  
@@ -102,7 +103,18 @@ def Message(player,map,world):
     environmentModel = EnvironmentModel()
     egoVehicleMotion = EgoVehicleMotion()   
 
-    wayPoints = [left_waypoint,ego_vehicle_waypoint,right_waypoint]
+    if ego_vehicle_waypoint.get_left_lane() != None and ego_vehicle_waypoint.lane_change & carla.LaneChange.Left :
+        left_waypoint = ego_vehicle_waypoint.get_left_lane()
+    else:
+        left_waypoint = None
+
+    if ego_vehicle_waypoint.get_right_lane() != None and ego_vehicle_waypoint.lane_change & carla.LaneChange.Right:
+        right_waypoint = ego_vehicle_waypoint.get_right_lane()
+    else:
+        right_waypoint = None
+
+    wayPoints = [left_waypoint, ego_vehicle_waypoint, right_waypoint]
+    # print(wayPoints)
 
     i = 0
     for laneIndex in range(3):
@@ -134,71 +146,43 @@ def Message(player,map,world):
             else:
                 environmentModel.Lanes[i].IsValid_b = True    
                 # print("lane is valid")
-                next_waypoints = []
-                next_waypoints.append(wayPoints[i])
+                sample_step = 2.0
+                sample_num = 20
+                p = CalcPolyCoeffs(wayPoints[i], player_loc, R, sample_step, sample_num)
+                # rospy.loginfo("laneIndex = %d, p0 = %f, p1 = %f, p2 = %f, p3 = %f" % (laneIndex, p.coeffs[0], p.coeffs[1], p.coeffs[2], p.coeffs[3]))
 
-                for _ in range(25):
-                    tmpwp = next_waypoints[-1]
-                    nextwps = list(tmpwp.next(4))
-                    if len(nextwps) > 0:
-                        nextwp = nextwps[0]
-                        next_waypoints.append(nextwp)   
-                    else: continue
-                for temp_wp in next_waypoints:
-                    world.debug.draw_point(temp_wp.transform.location)
-                # print('+++++++++++++lane ',laneIndex, 'has ', len(next_waypoints), 'waypoints++++++++++')
-                if len(next_waypoints) > 0:    
-                    # print("layer2 is running!!!!!!!!!!!!")   
-                # if len(wayPoints[i].next(4.0)) > 0:
-                #     next_waypoints.append(wayPoints[i].next(4.0)[0])
-                #     if len(wayPoints[i].next(4.0)[0].next(4.0)) > 0:
-                #         next_waypoints.append(wayPoints[i].next(4.0)[0].next(4.0)[0])
-                #         if len(wayPoints[i].next(4.0)[0].next(4.0)[0].next(4.0)) > 0:
-                #             next_waypoints.append(wayPoints[i].next(4.0)[0].next(4.0)[0].next(4.0)[0])
+                if p is None:
+                    rospy.logerr("fitting poly is None");
+                    return None
+                # if curvature is too big, shrink sample range to 40m
+                # if np.fabs(2 * p.coeffs[1]) > 0.01:
+                #     # print('curvature is too big = ', 2 * p.coeffs[1])
+                #     sample_step = 2.0
+                #     sample_num = 20
+                #     second_p = CalcPolyCoeffs(wayPoints[i], player_loc, R, sample_step, sample_num)
+                #     if np.fabs(second_p.coeffs[1]) < np.fabs(p.coeffs[1]):
+                #         p = second_p
+                #         # print('new curvature = ', 2 * p.coeffs[1])
+                range_view = sample_step * sample_num
 
-                    waypoint_loc_relative_x = []
-                    waypoint_loc_relative_y = []
-                    waypoint_loc_relative = []
-                    for waypoint in next_waypoints:
-                        x_rel = waypoint.transform.location.x
-                        y_rel = -waypoint.transform.location.y
-                        z_rel = waypoint.transform.location.z
-                        rel = [x_rel,y_rel,z_rel]
-                        # print('rel %s' %y_rel)
-                        # print('player_loc %s'%player_loc)   
-                        x_rel -= player_loc[0]
-                        y_rel -= player_loc[1]
-                        z_rel -= player_loc[2]
-                        rel = [x_rel,y_rel,z_rel]
-
-                        waypoint_loc_relative.append([x_rel,y_rel,z_rel])
-                        # print('waypoint_loc_relative %s' %waypoint_loc_relative)
-                    for waypoint in waypoint_loc_relative:
-                        waypoint_loc_relative_x.append(np.dot(R,waypoint)[0]) 
-                        waypoint_loc_relative_y.append(np.dot(R,waypoint)[1]) 
-
-                    # print('obj_loc_relative_x %s' %obj_loc_relative_x)                  
-                    # print('obj_loc_relative_y %s' %obj_loc_relative_y) 
-                    p = np.poly1d(np.polyfit(waypoint_loc_relative_x,waypoint_loc_relative_y,3))
-                    # print(p)            #Cubic polynomial                                
-                    # print(p.coeffs)
-                    if len(p.coeffs) == 4 :            #Cubic polynomial
-                        lanePolyY0 = p.coeffs[3]
-                        lanePolyPsi = math.atan(p.coeffs[2])
-                        lanePolyC0 = (2 * p.coeffs[1])
-                        lanePolyC1 = (6 * p.coeffs[0])
-                    elif len(p.coeffs) == 3 :
-                        lanePolyY0 = 0
-                        lanePolyPsi = math.atan(p.coeffs[2])
-                        lanePolyC0 = (2 * p.coeffs[1])
-                        lanePolyC1 = (6 * p.coeffs[0])
-                    # else:
-                        # print("polynomial in one variable ")
-                    # print("get central line!!!")
-                    environmentModel.Lanes[i].Geometry_st.dY0_f = lanePolyY0
-                    environmentModel.Lanes[i].Geometry_st.alpPsi_f = lanePolyPsi
-                    environmentModel.Lanes[i].Geometry_st.kapC0_f = lanePolyC0
-                    environmentModel.Lanes[i].Geometry_st.kapDxC1_f = lanePolyC1
+                if len(p.coeffs) == 4 :            #Cubic polynomial
+                    lanePolyY0 = p.coeffs[3]
+                    lanePolyPsi = math.atan(p.coeffs[2])
+                    lanePolyC0 = (2 * p.coeffs[1])
+                    lanePolyC1 = (6 * p.coeffs[0])
+                elif len(p.coeffs) == 3 :
+                    lanePolyY0 = 0
+                    lanePolyPsi = math.atan(p.coeffs[2])
+                    lanePolyC0 = (2 * p.coeffs[1])
+                    lanePolyC1 = (6 * p.coeffs[0])
+                # else:
+                    # print("polynomial in one variable ")
+                # print("get central line!!!")
+                environmentModel.Lanes[i].dRangViewEnd_uw = range_view * 128
+                environmentModel.Lanes[i].Geometry_st.dY0_f = lanePolyY0
+                environmentModel.Lanes[i].Geometry_st.alpPsi_f = lanePolyPsi
+                environmentModel.Lanes[i].Geometry_st.kapC0_f = lanePolyC0
+                environmentModel.Lanes[i].Geometry_st.kapDxC1_f = lanePolyC1
                 # print('waypoint1 %s'%next_waypoints[0])
                 # print('waypoint2 %s'%next_waypoints[1])
                 # print('waypoint3 %s'%next_waypoints[2])
@@ -318,7 +302,7 @@ def Message(player,map,world):
                             environmentModel.Lanes[i].ObjectsinLane_ast[j].ayv_sw = int(ayv * 2048)
 
                             environmentModel.Lanes[i].ObjectsinLane_ast[j].length_uw = int(4.0 * 128)
-			    environmentModel.Lanes[i].ObjectsinLane_ast[j].width_uw = int(2.0 * 128)
+                            environmentModel.Lanes[i].ObjectsinLane_ast[j].width_uw = int(2.0 * 128)
                             environmentModel.Lanes[i].ObjectsinLane_ast[j].headAngle_f = headAngle
                             
                             # print("id is {}".format(obj_sorted[j][0]), "type is ", type(environmentModel.Lanes[i].ObjectNum_ub))
@@ -397,11 +381,65 @@ def Message(player,map,world):
     egoVehicleMotion.carla_heading = yaw_player
 
     return environmentModel, egoVehicleMotion
-    # finally:
-    #     print('\ndestroying %d actors' % len(actors))
-    #     for actor in actors:
-    #         actor.destroy()
 
 
-# if __name__ == '__main__':
-#     Message()
+def CalcPolyCoeffs(start_wp, player_loc, R, sample_step, sample_num):
+    next_waypoints = []
+    next_waypoints.append(start_wp)
+    for _ in range(sample_num):
+        tmpwp = next_waypoints[-1]
+        nextwps = list(tmpwp.next(sample_step))
+        if len(nextwps) > 0:
+            nextwp = nextwps[0]
+            next_waypoints.append(nextwp)
+    if len(next_waypoints) > 3:
+        waypoint_loc_relative_x = []
+        waypoint_loc_relative_y = []
+        waypoint_loc_relative = []
+        for waypoint in next_waypoints:
+            x_rel = waypoint.transform.location.x
+            y_rel = -waypoint.transform.location.y
+            z_rel = waypoint.transform.location.z
+            rel = [x_rel,y_rel,z_rel]   
+            x_rel -= player_loc[0]
+            y_rel -= player_loc[1]
+            z_rel -= player_loc[2]
+            rel = [x_rel,y_rel,z_rel]
+            waypoint_loc_relative.append([x_rel,y_rel,z_rel])            
+        for waypoint in waypoint_loc_relative:
+            waypoint_loc_relative_x.append(np.dot(R, waypoint)[0]) 
+            waypoint_loc_relative_y.append(np.dot(R, waypoint)[1])
+        # print(waypoint_loc_relative_x)
+        p = np.poly1d(np.polyfit(waypoint_loc_relative_x, waypoint_loc_relative_y, 3))
+        # print('p coeffs H->L [%f, %f, %f, %f]' % (p.coeffs[0], p.coeffs[1], p.coeffs[2], p.coeffs[3]))
+        # print('first  point curvature = %f, x = %f, kappa = %f, 0kappa = %f' % \
+        #     (2 * p.coeffs[1], waypoint_loc_relative_x[0], GetKappa(waypoint_loc_relative_x[0], p), GetKappa(0, p)))
+        # mid = waypoint_loc_relative_x[int(len(waypoint_loc_relative_x)*0.5)]
+        # print('middle point curvature = %f, x = %f' % (GetKappa(mid, p), mid))
+        # print('last   point curvature = %f, x = %f\n' % (GetKappa(waypoint_loc_relative_x[-1], p), waypoint_loc_relative_x[-1]))
+        # if FloatEqual(p.coeffs[0], 0, 1e-4) and FloatEqual(p.coeffs[1], 0, 1e-4) and FloatEqual(p.coeffs[2], 0, 1e-4) and FloatEqual(p.coeffs[3], 0, 1e-4):
+        #     rospy.logerr("p0 = %f, p1 = %f, p2 = %f, p3 = %f" % (p.coeffs[0], p.coeffs[1], p.coeffs[2], p.coeffs[3]))
+        #     rospy.logerr("len(next_waypoints) = %d" % len(next_waypoints))
+        return p
+    else:
+        rospy.logerr("CalcPolyCoeffs failed, return None");
+        return None
+        # raise RuntimeError('waypoints is too little to fit %d' % len(next_waypoints))
+
+def GetKappa(x, p):
+    ddy = 6 * p.coeffs[0] + x + 2 * p.coeffs[1]
+    dy = 3 * p.coeffs[0] * (x**2) + 2 * p.coeffs[1] * x + p.coeffs[2]
+    kappa = np.abs(ddy) / np.sqrt(((1 + dy**2) ** 3))
+    return kappa
+
+def InRange(x, high, low):
+    if x >= low and x <= high:
+        return True
+    return False
+
+def FloatEqual(xl, xr, epi):
+    if epi < 0:
+        raise RuntimeError('input parameter wrong %f' % epi)
+    if xl > xr - epi and xl < xr + epi:
+        return True
+    return False
