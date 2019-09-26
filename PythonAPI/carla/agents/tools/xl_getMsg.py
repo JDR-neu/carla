@@ -255,7 +255,8 @@ def Message(player,map,world):
                                         vx_vy_vz2[1],vx_vy_vz2[2],angularVx_vy_vz2[0],angularVx_vy_vz2[1],\
                                         angularVx_vy_vz2[2],ax_ay_az2[0],ax_ay_az2[1],ax_ay_az2[2],\
                                         headAngle])
-                    obj_list_filter = list(filter(lambda x:(x[1] < 250 or x[1] > -250 ),obj_list))
+                    obj_list_filter = list(filter(lambda x:(x[1] < 150 and x[1] > -50 ), obj_list))     # longitudinal filter
+                    obj_list_filter = list(filter(lambda x:(np.abs(x[3] - player_loc[2]) < 2.0), obj_list_filter))      # height filter
 
                     # print('obj_list %s'%obj_list)
                     

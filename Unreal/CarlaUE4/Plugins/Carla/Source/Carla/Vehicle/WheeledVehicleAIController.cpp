@@ -15,6 +15,8 @@
 #include "GameFramework/Pawn.h"
 #include "WheeledVehicleMovementComponent.h"
 
+// #include "opencv2/opencv.hpp"
+
 // =============================================================================
 // -- Static local methods -----------------------------------------------------
 // =============================================================================
@@ -233,6 +235,31 @@ void AWheeledVehicleAIController::SetFixedRouteOnePoint(float x, float y, float 
   TargetLocationsForPlan.emplace(FVector(x, y, 0));
   SpeedLimitsForPlan.emplace(z);
   SpeedLimit = SpeedLimitsForPlan.front();
+
+  if(static_cast<int>(SpeedLimitsForPlan.size()) > 30 && static_cast<int>(TargetLocations.size()) < 50) {
+    std::cout << "speed limits size in carla: " << static_cast<int>(SpeedLimitsForPlan.size()) << std::endl;
+    auto temp_speeds = SpeedLimitsForPlan;
+    for(int i=0; i<static_cast<int>(SpeedLimitsForPlan.size()); i++) {
+      auto spd = temp_speeds.front();
+      temp_speeds.pop();      
+      std::cout << " " << spd;
+    }
+    std::cout << std::endl;
+  }
+  /*
+  if(static_cast<int>(SpeedLimitsForPlan.size()) > 30) {
+    cv::Mat speeds_img(800, 420, CV_8UC3, cv::Scalar(255,255,255));
+    cv::line(speeds_img, cv::Point(0, 720), cv::Point(400, 720), cv::Scalar(0,0,255), 2);
+    cv::line(speeds_img, cv::Point(0, 500), cv::Point(400, 500), cv::Scalar(255,0,0), 2);
+    cv::line(speeds_img, cv::Point(0, 300), cv::Point(400, 300), cv::Scalar(0,0,255), 2);
+    for(int i=0; i<static_cast<int>(SpeedLimitsForPlan.size()); i++) {
+      cv::circle(speeds_img, cv::Point(i*10, static_cast<int>(SpeedLimitsForPlan[i])), 2, cv::Scalar(0, 255, 0), -1);
+    }
+    cv::flip(speeds_img_, speeds_img_, 0);
+    cv::imshow("Carla speed limit", speeds_img);
+    cv::waitKey(1);
+  }
+  */
   /*
   const auto CurrentLocation = [&]() {
     const auto &Wheels = Vehicle->GetVehicleMovementComponent()->Wheels;
