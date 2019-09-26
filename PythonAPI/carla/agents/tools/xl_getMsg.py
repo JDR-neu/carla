@@ -148,7 +148,7 @@ def Message(player,map,world):
                 # print("lane is valid")
                 sample_step = 2.0
                 sample_num = 20
-                p = CalcPolyCoeffs(wayPoints[i], player_loc, R, sample_step, sample_num)
+                p, _ = CalcPolyCoeffs(wayPoints[i], player_loc, R, sample_step, sample_num)
                 # rospy.loginfo("laneIndex = %d, p0 = %f, p1 = %f, p2 = %f, p3 = %f" % (laneIndex, p.coeffs[0], p.coeffs[1], p.coeffs[2], p.coeffs[3]))
 
                 if p is None:
@@ -231,14 +231,7 @@ def Message(player,map,world):
                         ax = x_a_actor
                         ay = y_a_actor
                         az = z_a_actor
-                        
-                        headAngle = yaw_actor - yaw_player
-                        
-                        if headAngle > math.pi:
-                            headAngle = headAngle - 2 * math.pi
-                        if headAngle < -math.pi:
-                            headAngle = headAngle + 2 * math.pi
-                        
+
                         dx_dy_dz = [dx,dy,dz]
                         vx_vy_vz = [vx,vy,vz]
                         angularVx_vy_vz = [angularVx,angularVy,angularVz]
@@ -251,16 +244,29 @@ def Message(player,map,world):
                         # angularVx_vy_vz2 = np.dot(R,angularVx_vy_vz)
                         angularVx_vy_vz2 = [angularVx,angularVy,angularVz]
 
-                        obj_list.append([obj_id,dx_dy_dz2[0],dx_dy_dz2[1],dx_dy_dz2[2],vx_vy_vz2[0],\
-                                        vx_vy_vz2[1],vx_vy_vz2[2],angularVx_vy_vz2[0],angularVx_vy_vz2[1],\
-                                        angularVx_vy_vz2[2],ax_ay_az2[0],ax_ay_az2[1],ax_ay_az2[2],\
-                                        headAngle])
-                    obj_list_filter = list(filter(lambda x:(x[1] < 150 and x[1] > -50 ), obj_list))     # longitudinal filter
-                    obj_list_filter = list(filter(lambda x:(np.abs(x[3] - player_loc[2]) < 2.0), obj_list_filter))      # height filter
+                        if dx_dy_dz2[0] < 200 and dx_dy_dz2[0] > -50 and \
+                            dx_dy_dz2[1] < (4*wayPoints[i].lane_width) and dx_dy_dz2[1] > (-4*wayPoints[i].lane_width):                        
+                            headAngle = yaw_actor - yaw_player
+                            # print('source yaw_actor = %f, yaw_player = %f, headAngle = %f' % (yaw_actor, yaw_player, headAngle))                            
+                            if headAngle > math.pi:
+                                headAngle = headAngle - 2 * math.pi
+                            if headAngle < -math.pi:
+                                headAngle = headAngle + 2 * math.pi                        
+
+                            obj_list.append([obj_id,dx_dy_dz2[0],dx_dy_dz2[1],dx_dy_dz2[2],vx_vy_vz2[0],\
+                                            vx_vy_vz2[1],vx_vy_vz2[2],angularVx_vy_vz2[0],angularVx_vy_vz2[1],\
+                                            angularVx_vy_vz2[2],ax_ay_az2[0],ax_ay_az2[1],ax_ay_az2[2],\
+                                            headAngle])
+                    
+                    # obj_list_filter = list(filter(lambda x:x[1] < 200 and x[1] > -50, obj_list))     # longitudinal filter
+                    # obj_list_filter = list(filter(lambda x:x[2] < (4*wayPoints[i].lane_width) and x[2] > (-4*wayPoints[i].lane_width), obj_list_filter))     # lateral filter
+
+                    # for car in obj_list_filter:
+                    #     print('obstacle car x = %f, y = %f, z = %f, theta = %f deg' % (car[1], car[2], car[3], headAngle * 180.0 / math.pi))
 
                     # print('obj_list %s'%obj_list)
                     
-                    obj_sorted = sorted(obj_list_filter,key=lambda x:x[1]) #sort by dx
+                    obj_sorted = sorted(obj_list,key=lambda x:x[1]) #sort by dx
                     environmentModel.Lanes[i].ObjectNum_ub = len(obj_sorted)
 
                     # print('obj_sorted %s'%obj_sorted)
@@ -410,25 +416,26 @@ def CalcPolyCoeffs(start_wp, player_loc, R, sample_step, sample_num):
         for waypoint in waypoint_loc_relative:
             waypoint_loc_relative_x.append(np.dot(R, waypoint)[0]) 
             waypoint_loc_relative_y.append(np.dot(R, waypoint)[1])
-        # print(waypoint_loc_relative_x)
+
         p = np.poly1d(np.polyfit(waypoint_loc_relative_x, waypoint_loc_relative_y, 3))
         # print('p coeffs H->L [%f, %f, %f, %f]' % (p.coeffs[0], p.coeffs[1], p.coeffs[2], p.coeffs[3]))
         # print('first  point curvature = %f, x = %f, kappa = %f, 0kappa = %f' % \
         #     (2 * p.coeffs[1], waypoint_loc_relative_x[0], GetKappa(waypoint_loc_relative_x[0], p), GetKappa(0, p)))
-        # mid = waypoint_loc_relative_x[int(len(waypoint_loc_relative_x)*0.5)]
-        # print('middle point curvature = %f, x = %f' % (GetKappa(mid, p), mid))
-        # print('last   point curvature = %f, x = %f\n' % (GetKappa(waypoint_loc_relative_x[-1], p), waypoint_loc_relative_x[-1]))
-        # if FloatEqual(p.coeffs[0], 0, 1e-4) and FloatEqual(p.coeffs[1], 0, 1e-4) and FloatEqual(p.coeffs[2], 0, 1e-4) and FloatEqual(p.coeffs[3], 0, 1e-4):
-        #     rospy.logerr("p0 = %f, p1 = %f, p2 = %f, p3 = %f" % (p.coeffs[0], p.coeffs[1], p.coeffs[2], p.coeffs[3]))
-        #     rospy.logerr("len(next_waypoints) = %d" % len(next_waypoints))
-        return p
+        mid = waypoint_loc_relative_x[int(len(waypoint_loc_relative_x)*0.5)]
+        mid_curvature = GetKappa(mid, p)
+        last_curvature = GetKappa(waypoint_loc_relative_x[-1], p)
+        # print('middle point curvature = %f, x = %f' % (mid_curvature, mid))
+        # print('last   point curvature = %f, x = %f' % (last_curvature, waypoint_loc_relative_x[-1]))
+        if FloatEqual(p.coeffs[0], 0, 1e-6) and FloatEqual(p.coeffs[1], 0, 1e-6) and FloatEqual(p.coeffs[2], 0, 1e-6) and FloatEqual(p.coeffs[3], 0, 1e-6):
+            rospy.logerr("len(next_waypoints) = %d" % len(next_waypoints))
+        return p, mid_curvature
     else:
         rospy.logerr("CalcPolyCoeffs failed, return None");
-        return None
+        return None, None
         # raise RuntimeError('waypoints is too little to fit %d' % len(next_waypoints))
 
 def GetKappa(x, p):
-    ddy = 6 * p.coeffs[0] + x + 2 * p.coeffs[1]
+    ddy = 6 * p.coeffs[0] * x + 2 * p.coeffs[1]
     dy = 3 * p.coeffs[0] * (x**2) + 2 * p.coeffs[1] * x + p.coeffs[2]
     kappa = np.abs(ddy) / np.sqrt(((1 + dy**2) ** 3))
     return kappa
