@@ -140,6 +140,7 @@ def Message(player,map,world):
         if laneIndex == i:
             if wayPoints[i] == None :
                 environmentModel.Lanes[i].IsValid_b = False
+                environmentModel.Lanes[i].FirstFrontObjInLaneIdx_ub = 128
                 i = i+1 
                 # print("+++++++++++++++++++lane is not valid++++++++++++++++++++++++++")           
                 continue
@@ -426,8 +427,8 @@ def CalcPolyCoeffs(start_wp, player_loc, R, sample_step, sample_num):
         last_curvature = GetKappa(waypoint_loc_relative_x[-1], p)
         # print('middle point curvature = %f, x = %f' % (mid_curvature, mid))
         # print('last   point curvature = %f, x = %f' % (last_curvature, waypoint_loc_relative_x[-1]))
-        if FloatEqual(p.coeffs[0], 0, 1e-6) and FloatEqual(p.coeffs[1], 0, 1e-6) and FloatEqual(p.coeffs[2], 0, 1e-6) and FloatEqual(p.coeffs[3], 0, 1e-6):
-            rospy.logerr("len(next_waypoints) = %d" % len(next_waypoints))
+        # if FloatEqual(p.coeffs[0], 0, 1e-6) and FloatEqual(p.coeffs[1], 0, 1e-6) and FloatEqual(p.coeffs[2], 0, 1e-6) and FloatEqual(p.coeffs[3], 0, 1e-6):
+        #     rospy.logerr("len(next_waypoints) = %d" % len(next_waypoints))
         return p, mid_curvature
     else:
         rospy.logerr("CalcPolyCoeffs failed, return None");
