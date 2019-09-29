@@ -236,16 +236,16 @@ void AWheeledVehicleAIController::SetFixedRouteOnePoint(float x, float y, float 
   SpeedLimitsForPlan.emplace(z);
   SpeedLimit = SpeedLimitsForPlan.front();
 
-  if(static_cast<int>(SpeedLimitsForPlan.size()) > 30 && static_cast<int>(TargetLocations.size()) < 50) {
-    std::cout << "speed limits size in carla: " << static_cast<int>(SpeedLimitsForPlan.size()) << std::endl;
-    auto temp_speeds = SpeedLimitsForPlan;
-    for(int i=0; i<static_cast<int>(SpeedLimitsForPlan.size()); i++) {
-      auto spd = temp_speeds.front();
-      temp_speeds.pop();      
-      std::cout << " " << spd;
-    }
-    std::cout << std::endl;
-  }
+  // if(static_cast<int>(SpeedLimitsForPlan.size()) > 30 && static_cast<int>(TargetLocations.size()) < 50) {
+  //   std::cout << "speed limits size in carla: " << static_cast<int>(SpeedLimitsForPlan.size()) << std::endl;
+  //   auto temp_speeds = SpeedLimitsForPlan;
+  //   for(int i=0; i<static_cast<int>(SpeedLimitsForPlan.size()); i++) {
+  //     auto spd = temp_speeds.front();
+  //     temp_speeds.pop();      
+  //     std::cout << " " << spd;
+  //   }
+  //   std::cout << std::endl;
+  // }
   /*
   if(static_cast<int>(SpeedLimitsForPlan.size()) > 30) {
     cv::Mat speeds_img(800, 420, CV_8UC3, cv::Scalar(255,255,255));
@@ -332,12 +332,13 @@ FVehicleControl AWheeledVehicleAIController::TickAutopilotController()
   const auto Speed = Vehicle->GetVehicleForwardSpeed() * 0.036f;
 
   float Throttle;
-  if (TrafficLightState != ETrafficLightState::Green)
-  {
-    Vehicle->SetAIVehicleState(ECarlaWheeledVehicleState::WaitingForRedLight);
-    Throttle = Stop(Speed);
-  }
-  else if (IsThereAnObstacleAhead(*Vehicle, Speed, Direction))
+  // if (TrafficLightState != ETrafficLightState::Green)
+  // {
+  //   Vehicle->SetAIVehicleState(ECarlaWheeledVehicleState::WaitingForRedLight);
+  //   Throttle = Stop(Speed);
+  // }
+  // else if (IsThereAnObstacleAhead(*Vehicle, Speed, Direction))
+  if (IsThereAnObstacleAhead(*Vehicle, Speed, Direction))
   {
     Vehicle->SetAIVehicleState(ECarlaWheeledVehicleState::ObstacleAhead);
     Throttle = Stop(Speed);

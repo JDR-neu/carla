@@ -315,7 +315,7 @@ def Message(player,map,world):
                             
                             # print("id is {}".format(obj_sorted[j][0]), "type is ", type(environmentModel.Lanes[i].ObjectNum_ub))
                             environmentModel.Lanes[i].ObjectIdxinLane_aub[j] = obj_sorted[j][0]
-                            # print("id after sorted is {}".format(int(obj_sorted[j][0])))
+                            print("id after sorted is {}".format(int(obj_sorted[j][0])))
                             
                         
                         obj_filter = filter(lambda x:x[1] > 0,obj_sorted)
@@ -334,6 +334,7 @@ def Message(player,map,world):
                 else:
                     environmentModel.Lanes[i].ObjectsinLane_ast = []
                     environmentModel.Lanes[i].FirstFrontObjInLaneIdx_ub = 128
+                    environmentModel.Lanes[i].ObjectIdxinLane_aub = [0] * 64  
                 
                 if wayPoints[i].left_lane_marking.type == carla.LaneMarkingType.Solid:
                     LeftBoundary = 1
@@ -360,7 +361,6 @@ def Message(player,map,world):
                 environmentModel.Lanes[i].RightBoundaryType_ub = RightBoundary   
                 environmentModel.Lanes[i].lane_type = lane_type
                 environmentModel.Lanes[i].Geometry_st.dWidth_f = wayPoints[i].lane_width
-                environmentModel.Lanes[i].ObjectIdxinLane_aub = [0] * 64
                 # print("layer6 is running!!!!!!!!!!!!")
     
             i +=1  
